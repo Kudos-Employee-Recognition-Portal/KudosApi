@@ -14,7 +14,7 @@ func main() {
 	}
 	// Instantiate App object from app.go.
 	app := App{}
-	app.Init(os.Getenv("API_DB_USERNAME"), os.Getenv("API_DB_USERNAME"), os.Getenv("API_DB_PASSWORD"))
+	app.Init(os.Getenv("API_DB_USERNAME"), os.Getenv("API_DB_PASSWORD"), os.Getenv("API_DB_NAME"))
 	app.Run(":8080")
 }
 
