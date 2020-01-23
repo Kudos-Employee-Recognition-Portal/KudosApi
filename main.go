@@ -7,9 +7,10 @@ import (
 )
 
 func main() {
-	r := mux.NewRouter()
+	config := GetConfig();
 
-	r.HandleFunc("/", routesRouter)
+	api = &api.Api{};
 
-	log.Fatal(http.ListenAndServe(":8080", r))
+	api.Initialize(config);
+	api.Run(":8080");
 }

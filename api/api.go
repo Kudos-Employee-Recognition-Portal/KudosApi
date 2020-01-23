@@ -1,7 +1,7 @@
-package main
+package api
 
 import (
-	_ "./routes"
+	_ "./handlers"
 	"net/http"
 )
 
