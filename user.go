@@ -6,8 +6,8 @@ import (
 )
 
 type user struct {
-	ID		int
-	Name	string
+	ID   int
+	Name string
 }
 
 func getUsers(db *sql.DB, start, count int) ([]user, error) {

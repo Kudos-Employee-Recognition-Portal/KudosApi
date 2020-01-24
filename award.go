@@ -1,6 +1,6 @@
 package main
 
 type award struct {
-	ID			int
-	Recipient	user
+	ID        int
+	Recipient user
 }
