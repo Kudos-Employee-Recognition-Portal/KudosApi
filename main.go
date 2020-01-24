@@ -1,6 +1,7 @@
 package main
 
 import (
+	"./app"
 	"github.com/joho/godotenv"
 	"log"
 	"os"
@@ -13,7 +14,11 @@ func main() {
 		log.Fatal("Error loading .env file.")
 	}
 	// Instantiate App object from app.go.
-	app := App{}
-	app.Init(os.Getenv("API_DB_USERNAME"), os.Getenv("API_DB_PASSWORD"), os.Getenv("API_DB_NAME"))
-	app.Run(os.Getenv("API_PORT"))
+	api := app.App{}
+
+	api.InitDB(os.Getenv("API_DB_USERNAME"), os.Getenv("API_DB_PASSWORD"), os.Getenv("API_DB_NAME"))
+
+	api.InitRouter()
+
+	api.Run(os.Getenv("API_PORT"))
 }
