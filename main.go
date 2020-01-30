@@ -13,12 +13,10 @@ func main() {
 	if err != nil {
 		log.Fatal("Error loading .env file.")
 	}
-	// Instantiate App object from app.go.
+	// Instantiate App object from app package/app.go.
 	api := app.App{}
 
 	api.InitDB(os.Getenv("API_DB_USERNAME"), os.Getenv("API_DB_PASSWORD"), os.Getenv("API_DB_NAME"))
-
 	api.InitRouter()
-
 	api.Run(os.Getenv("API_PORT"))
 }

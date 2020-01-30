@@ -29,27 +29,17 @@ func (app *App) InitDB(user, password, dbname string) {
 }
 
 func (app *App) InitRouter() {
-	// Create new gorilla mux router and assign to the App struct.
+	// Create new gorilla mux router and assign to the App struct's Router property.
 	app.Router = mux.NewRouter()
 
-	app.Router.HandleFunc("/", routes.ApiInfo)
+	// TODO: Restrict requests to server domain after deployment.
 
-	usersRouter := app.Router.PathPrefix("/users").Subrouter()
-	usersRouter.HandleFunc("/", routes.GetUsers).Methods("GET")
-	usersRouter.HandleFunc("/managers", routes.GetManagers).Methods("GET")
-	usersRouter.HandleFunc("/managers", routes.CreateManager).Methods("POST")
-	usersRouter.HandleFunc("/managers/{id}", routes.GetManager).Methods("GET")
-	usersRouter.HandleFunc("/managers/{id}", routes.UpdateManager).Methods("PUT")
-	usersRouter.HandleFunc("/managers/{id}", routes.DeleteManager).Methods("DELETE")
-	usersRouter.HandleFunc("/admins", routes.GetAdmins).Methods("GET")
-	usersRouter.HandleFunc("/admins", routes.CreateAdmin).Methods("POST")
-	usersRouter.HandleFunc("/admins/{id}", routes.GetAdmin).Methods("GET")
-	usersRouter.HandleFunc("/admins/{id}", routes.UpdateAdmin).Methods("PUT")
-	usersRouter.HandleFunc("/admins/{id}", routes.DeleteAdmin).Methods("DELETE")
-
+	// Handle routes by either directly passing a handler function or pointing to a subrouter function.
+	app.Router.Handle("/{test}", routes.ApiInfo(app.DB))
+	routes.UsersRouter(app.Router.PathPrefix("/users").Subrouter(), app.DB)
+	//routes.AwardsRouter(app.Router.PathPrefix("/awards").Subrouter())
 }
 
 func (app *App) Run(addr string) {
 	log.Fatal(http.ListenAndServe(addr, app.Router))
 }
-
