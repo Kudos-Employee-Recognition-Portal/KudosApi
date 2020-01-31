@@ -1,7 +1,7 @@
 package app
 
 import (
-	"../routes"
+	"../controllers"
 	"database/sql"
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
@@ -26,6 +26,12 @@ func (app *App) InitDB(user, password, dbname string) {
 	} else {
 		log.Println("Connected to database.")
 	}
+	err = app.DB.Ping()
+	if err != nil {
+		log.Fatal(err)
+	} else {
+		log.Println("Database ping successful.")
+	}
 }
 
 func (app *App) InitRouter() {
@@ -34,10 +40,10 @@ func (app *App) InitRouter() {
 
 	// TODO: Restrict requests to server domain after deployment.
 
-	// Handle routes by either directly passing a handler function or pointing to a subrouter function.
-	app.Router.Handle("/{test}", routes.ApiInfo(app.DB))
-	routes.UsersRouter(app.Router.PathPrefix("/users").Subrouter(), app.DB)
-	//routes.AwardsRouter(app.Router.PathPrefix("/awards").Subrouter())
+	// Handle controllers by either directly passing a handler function or pointing to a subrouter function.
+	app.Router.Handle("/", ApiInfo(app.DB))
+	controllers.UsersRouter(app.Router.PathPrefix("/users").Subrouter(), app.DB)
+	//controllers.AwardsRouter(app.Router.PathPrefix("/awards").Subrouter())
 }
 
 func (app *App) Run(addr string) {
