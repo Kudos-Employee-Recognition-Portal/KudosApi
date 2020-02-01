@@ -1,34 +1,19 @@
 package handlers
 
 import (
+	"../models"
 	"database/sql"
 	"encoding/json"
 	"net/http"
 )
 
-type User struct {
-	ID   string `json:"id"`
-	Name string `json:"name"`
-	Age  string `json:"age"`
-}
-
-// Return the handler as a closure.
+//Return the handler as a closure.
 func GetUsers(db *sql.DB) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		rows, err := db.Query("SELECT id, name, age FROM users")
+		users, err := models.GetUsers(db)
 		if err != nil {
+			http.Error(w, http.StatusText(500), 500)
 			return
-		}
-		defer rows.Close()
-
-		users := make([]*User, 0)
-		for rows.Next() {
-			user := new(User)
-			err := rows.Scan(&user.ID, &user.Name, &user.Age)
-			if err != nil {
-				return
-			}
-			users = append(users, user)
 		}
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(users)

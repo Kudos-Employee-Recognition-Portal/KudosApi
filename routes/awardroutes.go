@@ -1,4 +1,4 @@
-package controllers
+package routes
 
 import (
 	"github.com/gorilla/mux"

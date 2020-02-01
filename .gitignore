@@ -2,3 +2,4 @@
 config.go
 .env
 *.exe
+/dev.log

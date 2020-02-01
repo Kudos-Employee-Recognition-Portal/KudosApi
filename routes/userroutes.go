@@ -1,16 +1,10 @@
-package controllers
+package routes
 
 import (
 	"../handlers"
 	"database/sql"
 	"github.com/gorilla/mux"
 )
-
-type User struct {
-	ID   string `json:"id"`
-	Name string `json:"name"`
-	Age  string `json:"age"`
-}
 
 func UsersRouter(r *mux.Router, db *sql.DB) {
 	r.StrictSlash(true)
