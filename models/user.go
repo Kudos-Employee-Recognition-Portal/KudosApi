@@ -10,26 +10,10 @@ type User struct {
 	Name string `json:"name"`
 	Age  int    `json:"age"`
 	Type string `json:"type"`
-}
-
-type Users []User
-
-type Manager struct {
-	ID   int    `json:"id"`
-	Name string `json:"name"`
-	Age  int    `json:"age"`
 	Sig  string `json:"signature"`
 }
 
-type Managers []Manager
-
-type Admin struct {
-	ID   int    `json:"id"`
-	Name string `json:"name"`
-	Age  int    `json:"age"`
-}
-
-type Admins []Admin
+type Users []User
 
 func GetUsers(db *sql.DB) (Users, error) {
 	rows, err := db.Query(
@@ -41,24 +25,24 @@ func GetUsers(db *sql.DB) (Users, error) {
 
 	var users Users
 	for rows.Next() {
-		var u User
-		err := rows.Scan(&u.ID, &u.Name, &u.Age)
+		var user User
+		err := rows.Scan(&user.ID, &user.Name, &user.Age)
 		if err != nil {
 			return nil, err
 		}
-		users = append(users, u)
+		users = append(users, user)
 	}
 	return users, nil
 }
 
-func (u *User) GetUser(db *sql.DB) error {
-	log.Println(u.Name)
+func (user *User) GetUser(db *sql.DB) error {
+	log.Println(user.Name)
 	return db.QueryRow(
 		"SELECT id, name, age FROM users WHERE name = ?",
-		u.Name).Scan(&u.ID, &u.Name, &u.Age)
+		user.Name).Scan(&user.ID, &user.Name, &user.Age)
 }
 
-func GetManagers(db *sql.DB) (Managers, error) {
+func GetManagers(db *sql.DB) (Users, error) {
 	rows, err := db.Query(
 		"SELECT id, name, age FROM users")
 	if err != nil {
@@ -66,28 +50,28 @@ func GetManagers(db *sql.DB) (Managers, error) {
 	}
 	defer rows.Close()
 
-	var managers Managers
+	var managers Users
 	for rows.Next() {
-		var m Manager
-		err := rows.Scan(&m.ID, &m.Name, &m.Age)
+		var manager User
+		err := rows.Scan(&manager.ID, &manager.Name, &manager.Age)
 		if err != nil {
 			return nil, err
 		}
-		managers = append(managers, m)
+		managers = append(managers, manager)
 	}
 	return managers, nil
 }
 
-func (m Manager) GetManager(db *sql.DB) error {
+func (manager *User) GetManager(db *sql.DB) error {
 	return db.QueryRow(
 		"SELECT id, name, age FROM users WHERE id = ?",
-		m.ID).Scan(&m.ID, &m.Name, &m.Age, &m.Sig)
+		manager.ID).Scan(&manager.ID, &manager.Name, &manager.Age, &manager.Sig)
 }
 
-func (m *Manager) CreateManager(db *sql.DB) error {
+func (manager *User) CreateManager(db *sql.DB) error {
 	res, err := db.Exec(
 		"INSERT INTO users (name, age) VALUES (?, ?)",
-		m.Name, m.Age)
+		manager.Name, manager.Age)
 	if err != nil {
 		return err
 	}
@@ -95,25 +79,25 @@ func (m *Manager) CreateManager(db *sql.DB) error {
 	if err != nil {
 		return err
 	}
-	m.ID = int(insertID)
+	manager.ID = int(insertID)
 	return nil
 }
 
-func (m *Manager) UpdateManager(db *sql.DB) error {
+func (manager *User) UpdateManager(db *sql.DB) error {
 	_, err := db.Exec(
 		"UPDATE users SET name=?, age=? WHERE id=?",
-		m.Name, m.Age, m.ID)
+		manager.Name, manager.Age, manager.ID)
 	return err
 }
 
-func (m *Manager) DeleteManager(db *sql.DB) error {
+func (manager *User) DeleteManager(db *sql.DB) error {
 	_, err := db.Exec(
 		"DELETE FROM users WHERE id=?",
-		m.ID)
+		manager.ID)
 	return err
 }
 
-func GetAdmins(db *sql.DB) (Admins, error) {
+func GetAdmins(db *sql.DB) (Users, error) {
 	rows, err := db.Query(
 		"SELECT id, name, age FROM users")
 	if err != nil {
@@ -121,28 +105,28 @@ func GetAdmins(db *sql.DB) (Admins, error) {
 	}
 	defer rows.Close()
 
-	var admins Admins
+	var admins Users
 	for rows.Next() {
-		var a Admin
-		err := rows.Scan(&a.ID, &a.Name, &a.Age)
+		var admin User
+		err := rows.Scan(&admin.ID, &admin.Name, &admin.Age)
 		if err != nil {
 			return nil, err
 		}
-		admins = append(admins, a)
+		admins = append(admins, admin)
 	}
 	return admins, nil
 }
 
-func (a *Admin) GetAdmin(db *sql.DB) error {
+func (admin *User) GetAdmin(db *sql.DB) error {
 	return db.QueryRow(
 		"SELECT id, name, age FROM users WHERE id = ?",
-		a.ID).Scan(&a.ID, &a.Name, &a.Age)
+		admin.ID).Scan(&admin.ID, &admin.Name, &admin.Age)
 }
 
-func (a *Admin) CreateAdmin(db *sql.DB) error {
+func (admin *User) CreateAdmin(db *sql.DB) error {
 	res, err := db.Exec(
 		"INSERT INTO users (name, age) VALUES (?, ?)",
-		a.Name, a.Age)
+		admin.Name, admin.Age)
 	if err != nil {
 		return err
 	}
@@ -150,20 +134,20 @@ func (a *Admin) CreateAdmin(db *sql.DB) error {
 	if err != nil {
 		return err
 	}
-	a.ID = int(insertID)
+	admin.ID = int(insertID)
 	return nil
 }
 
-func (a *Admin) UpdateAdmin(db *sql.DB) error {
+func (admin *User) UpdateAdmin(db *sql.DB) error {
 	_, err := db.Exec(
 		"UPDATE users SET name=?, age=? WHERE id=?",
-		a.Name, a.Age, a.ID)
+		admin.Name, admin.Age, admin.ID)
 	return err
 }
 
-func (a *Admin) DeleteAdmin(db *sql.DB) error {
+func (admin *User) DeleteAdmin(db *sql.DB) error {
 	_, err := db.Exec(
 		"DELETE FROM users WHERE id=?",
-		a.ID)
+		admin.ID)
 	return err
 }
