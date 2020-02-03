@@ -35,6 +35,7 @@ func GetUsers(db *sql.DB) (Users, error) {
 	return users, nil
 }
 
+// Nonstandard receiver names used to reflect expected data model.
 func (user *User) GetUser(db *sql.DB) error {
 	log.Println(user.Name)
 	return db.QueryRow(

@@ -43,7 +43,7 @@ func (app *App) InitRouter() {
 	// Handle routes by either directly passing a handler function or pointing to a subrouter function.
 	app.Router.Handle("/", ApiInfo(app.DB))
 	routes.UsersRouter(app.Router.PathPrefix("/users").Subrouter(), app.DB)
-	//routes.AwardsRouter(app.Router.PathPrefix("/awards").Subrouter())
+	routes.AwardsRouter(app.Router.PathPrefix("/awards").Subrouter(), app.DB)
 }
 
 func (app *App) Run(addr string) {

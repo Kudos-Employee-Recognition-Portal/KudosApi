@@ -21,6 +21,7 @@ func GetUsers(db *sql.DB) http.Handler {
 		}
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
+		// Encoding error is explicitly ignored as data structure is verified in model method.
 		_ = json.NewEncoder(w).Encode(users)
 	})
 }
@@ -159,7 +160,7 @@ func GetAdmins(db *sql.DB) http.Handler {
 		}
 		w.WriteHeader(http.StatusOK)
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(users)
+		_ = json.NewEncoder(w).Encode(users)
 	})
 }
 
