@@ -40,7 +40,7 @@ func (app *App) InitRouter() {
 
 	// TODO: Restrict requests to server domain after deployment.
 
-	// Handle routes by either directly passing a handler function or pointing to a subrouter function.
+	// Handle routes by either directly passing a handler function or pointing to a subrouter directing function.
 	app.Router.Handle("/", ApiInfo(app.DB))
 	routes.UsersRouter(app.Router.PathPrefix("/users").Subrouter(), app.DB)
 	routes.AwardsRouter(app.Router.PathPrefix("/awards").Subrouter(), app.DB)

@@ -37,7 +37,6 @@ func GetUsers(db *sql.DB) (Users, error) {
 
 // Nonstandard receiver names used to reflect expected data model.
 func (user *User) GetUser(db *sql.DB) error {
-	log.Println(user.Name)
 	return db.QueryRow(
 		"SELECT id, name, age FROM users WHERE name = ?",
 		user.Name).Scan(&user.ID, &user.Name, &user.Age)
@@ -67,6 +66,29 @@ func (manager *User) GetManager(db *sql.DB) error {
 	return db.QueryRow(
 		"SELECT id, name, age FROM users WHERE id = ?",
 		manager.ID).Scan(&manager.ID, &manager.Name, &manager.Age, &manager.Sig)
+}
+
+func (manager *User) GetManagerAwards(db *sql.DB) (Awards, error) {
+	rows, err := db.Query(
+		"SELECT id, region, type, recipient, creator, date, created FROM awards WHERE creator = ?",
+		manager.ID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var awards Awards
+	for rows.Next() {
+		var award Award
+		err := rows.Scan(
+			&award.ID, &award.Region, &award.Type, &award.RecipientName,
+			&award.CreatorID, &award.CreationDate, &award.ConferralDate)
+		if err != nil {
+			return nil, err
+		}
+		awards = append(awards, award)
+	}
+	return awards, nil
 }
 
 func (manager *User) CreateManager(db *sql.DB) error {
