@@ -2,7 +2,6 @@ package models
 
 import (
 	"database/sql"
-	"log"
 	"time"
 )
 
@@ -40,6 +39,8 @@ func GetAwards(db *sql.DB) (Awards, error) {
 	}
 	return awards, nil
 }
+
+// TODO: Query based search functions.
 
 func (award *Award) GetAward(db *sql.DB) error {
 	return db.QueryRow(

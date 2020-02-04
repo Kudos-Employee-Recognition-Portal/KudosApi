@@ -24,6 +24,8 @@ func GetAwards(db *sql.DB) http.Handler {
 	})
 }
 
+// TODO: Award search query handler.
+
 func GetManagerAwards(db *sql.DB) http.Handler {
 	// Return the handler as a closure over the database object.
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
