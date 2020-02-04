@@ -59,8 +59,9 @@ func CreateAward(db *sql.DB) http.Handler {
 			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 			return
 		}
-		w.WriteHeader(http.StatusCreated)
+
 		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusCreated)
 		_ = json.NewEncoder(w).Encode(award)
 	})
 }
@@ -81,6 +82,7 @@ func GetAward(db *sql.DB) http.Handler {
 			return
 		}
 		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
 		_ = json.NewEncoder(w).Encode(award)
 	})
 }
@@ -99,8 +101,9 @@ func DeleteAward(db *sql.DB) http.Handler {
 			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 			return
 		}
-		w.WriteHeader(http.StatusOK)
+
 		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
 		_ = json.NewEncoder(w).Encode(map[string]string{"result": "success"})
 	})
 }
