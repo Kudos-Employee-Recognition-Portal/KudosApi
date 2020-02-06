@@ -1,7 +1,7 @@
 package main
 
 import (
-	"./app"
+	"github.com/Kudos-Employee-Recognition-Portal/KudosApi/app"
 	"github.com/joho/godotenv"
 	"log"
 	"os"

@@ -1,9 +1,9 @@
 package app
 
 import (
-	"../routes"
 	"database/sql"
 	"fmt"
+	"github.com/Kudos-Employee-Recognition-Portal/KudosApi/routes"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/mux"
 	"log"

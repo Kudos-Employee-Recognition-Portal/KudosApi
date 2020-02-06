@@ -1,8 +1,8 @@
 package routes
 
 import (
-	"../handlers"
 	"database/sql"
+	"github.com/Kudos-Employee-Recognition-Portal/KudosApi/handlers"
 	"github.com/gorilla/mux"
 )
 

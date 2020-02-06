@@ -1,9 +1,9 @@
 package handlers
 
 import (
-	"../models"
 	"database/sql"
 	"encoding/json"
+	"github.com/Kudos-Employee-Recognition-Portal/KudosApi/models"
 	"github.com/gorilla/mux"
 	"net/http"
 	"strconv"
