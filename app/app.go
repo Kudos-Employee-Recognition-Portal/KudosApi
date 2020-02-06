@@ -15,8 +15,8 @@ type App struct {
 	DB     *sql.DB
 }
 
-func (app *App) InitDB(user, password, dbname string) {
-	connectionString := fmt.Sprintf("%s:%s@/%s", user, password, dbname)
+func (app *App) InitDB(user, password, host, port, dbname string) {
+	connectionString := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", user, password, host, port, dbname)
 
 	// Initialize sql db connection pool and assign to the App struct.
 	var err error
@@ -32,6 +32,15 @@ func (app *App) InitDB(user, password, dbname string) {
 	} else {
 		log.Println("Database ping successful.")
 	}
+
+	// show available tables in the connected database.
+	//rows, _ := app.DB.Query("SHOW TABLES")
+	//defer rows.Close()
+	//for rows.Next() {
+	//	var name string
+	//	_ = rows.Scan(&name)
+	//	log.Println(name)
+	//}
 }
 
 func (app *App) InitRouter() {

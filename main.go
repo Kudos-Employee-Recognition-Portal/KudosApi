@@ -25,7 +25,12 @@ func main() {
 	// Instantiate App object from app package/app.go.
 	api := app.App{}
 	// Initialize database connection.
-	api.InitDB(os.Getenv("API_DB_USERNAME"), os.Getenv("API_DB_PASSWORD"), os.Getenv("API_DB_NAME"))
+	api.InitDB(
+		os.Getenv("API_DB_USERNAME"),
+		os.Getenv("API_DB_PASSWORD"),
+		os.Getenv("API_DB_HOST"),
+		os.Getenv("API_DB_PORT"),
+		os.Getenv("API_DB_NAME"))
 	// Build routes.
 	api.InitRouter()
 	// Serve.
