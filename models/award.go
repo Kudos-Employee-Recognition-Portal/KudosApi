@@ -7,7 +7,7 @@ import (
 
 type Award struct {
 	ID             int            `json:"id"`
-	Region         string         `json:"region"`
+	Region         int            `json:"region"`
 	Type           string         `json:"type"`
 	RecipientName  string         `json:"recipientname"`
 	RecipientEmail string         `json:"recipientemail"`
