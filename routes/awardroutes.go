@@ -12,5 +12,5 @@ func AwardsRouter(r *mux.Router, db *sql.DB) {
 	r.Handle("/{id}", handlers.DeleteAward(db)).Methods("DELETE")
 	r.Handle("/", handlers.GetAwards(db)).Methods("GET")
 	r.Handle("/{id}", handlers.GetAward(db)).Methods("GET")
-	// TODO: Query handling route.
+	// TODO: Query parameter handling route.
 }

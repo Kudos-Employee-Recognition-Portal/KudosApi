@@ -15,6 +15,7 @@ func GetUsers(db *sql.DB) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		users, err := models.GetUsers(db)
 		if err != nil {
+			// Write errors explicitly. Could be changed to http response text later.
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}

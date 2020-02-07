@@ -8,8 +8,8 @@ import (
 )
 
 func main() {
-	// Redirect server logging to file.
 	// Logging handled by Google Cloud Engine services in deployment.
+	// Redirect server logging to file.
 	//logfile, err := os.OpenFile("dev.log", os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
 	//if err != nil {
 	//	log.Fatal(err)
