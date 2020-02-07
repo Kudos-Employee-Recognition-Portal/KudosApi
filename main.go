@@ -9,6 +9,7 @@ import (
 
 func main() {
 	// Redirect server logging to file.
+	// Logging handled by Google Cloud Engine services in deployment.
 	//logfile, err := os.OpenFile("dev.log", os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
 	//if err != nil {
 	//	log.Fatal(err)
@@ -18,6 +19,7 @@ func main() {
 	//log.Print("Log file start.")
 
 	// Load environment variables from .env file with godotenv package.
+	// Any changes between dev and deploy should be moderated by .env.
 	err := godotenv.Load()
 	if err != nil {
 		log.Fatal("Error loading .env file.")

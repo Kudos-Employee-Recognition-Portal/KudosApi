@@ -2,21 +2,26 @@ package models
 
 import (
 	"database/sql"
+	"github.com/go-sql-driver/mysql"
 )
 
 type User struct {
-	ID   int    `json:"id"`
-	Name string `json:"name"`
-	Age  int    `json:"age"`
-	Type string `json:"type"`
-	Sig  string `json:"signature"`
+	ID        int            `json:"userid"`
+	FirstName string         `json:"firstname"`
+	LastName  string         `json:"lastname"`
+	Email     string         `json:"email"`
+	Type      int            `json:"usertype"`
+	Password  string         `json:"password"`
+	CreatedOn mysql.NullTime `json:"created"`
+	CreatedBy int            `json:"creator"`
+	SigID     sql.NullInt64  `json:"signature"`
 }
 
 type Users []User
 
 func GetUsers(db *sql.DB) (Users, error) {
 	rows, err := db.Query(
-		"SELECT id, name, age FROM users")
+		"SELECT userID, firstName, lastName, email, userTypeID, password, createdOn, createdBy, signatureID FROM user")
 	if err != nil {
 		return nil, err
 	}
@@ -25,7 +30,8 @@ func GetUsers(db *sql.DB) (Users, error) {
 	var users Users
 	for rows.Next() {
 		var user User
-		err := rows.Scan(&user.ID, &user.Name, &user.Age)
+		err := rows.Scan(&user.ID, &user.FirstName, &user.LastName, &user.Email, &user.Type, &user.Password, &user.CreatedOn,
+			&user.CreatedBy, &user.SigID)
 		if err != nil {
 			return nil, err
 		}
@@ -34,66 +40,38 @@ func GetUsers(db *sql.DB) (Users, error) {
 	return users, nil
 }
 
-// Nonstandard receiver names used to reflect expected data model.
+func GetUsersByType(db *sql.DB, usertype int) (Users, error) {
+	rows, err := db.Query(
+		"SELECT userID, firstName, lastName, email, userTypeID, password, createdOn, createdBy, signatureID FROM user WHERE userTypeID = ?", usertype)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var users Users
+	for rows.Next() {
+		var user User
+		err := rows.Scan(&user.ID, &user.FirstName, &user.LastName, &user.Email, &user.Type, &user.Password, &user.CreatedOn,
+			&user.CreatedBy, &user.SigID)
+		if err != nil {
+			return nil, err
+		}
+		users = append(users, user)
+	}
+	return users, nil
+}
+
 func (user *User) GetUser(db *sql.DB) error {
 	return db.QueryRow(
-		"SELECT id, name, age FROM users WHERE name = ?",
-		user.Name).Scan(&user.ID, &user.Name, &user.Age)
+		"SELECT userID, firstName, lastName, email, userTypeID, password, createdOn, createdBy, signatureID FROM user WHERE email = ?",
+		user.Email).Scan(&user.ID, &user.FirstName, &user.LastName, &user.Email, &user.Type, &user.Password, &user.CreatedOn,
+		&user.CreatedBy, &user.SigID)
 }
 
-func GetManagers(db *sql.DB) (Users, error) {
-	rows, err := db.Query(
-		"SELECT id, name, age FROM users")
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
-	var managers Users
-	for rows.Next() {
-		var manager User
-		err := rows.Scan(&manager.ID, &manager.Name, &manager.Age)
-		if err != nil {
-			return nil, err
-		}
-		managers = append(managers, manager)
-	}
-	return managers, nil
-}
-
-func (manager *User) GetManager(db *sql.DB) error {
-	return db.QueryRow(
-		"SELECT id, name, age FROM users WHERE id = ?",
-		manager.ID).Scan(&manager.ID, &manager.Name, &manager.Age, &manager.Sig)
-}
-
-func (manager *User) GetManagerAwards(db *sql.DB) (Awards, error) {
-	rows, err := db.Query(
-		"SELECT id, region, type, recipient, creator, date, created FROM awards WHERE creator = ?",
-		manager.ID)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
-	var awards Awards
-	for rows.Next() {
-		var award Award
-		err := rows.Scan(
-			&award.ID, &award.Region, &award.Type, &award.RecipientName,
-			&award.CreatorID, &award.CreationDate, &award.ConferralDate)
-		if err != nil {
-			return nil, err
-		}
-		awards = append(awards, award)
-	}
-	return awards, nil
-}
-
-func (manager *User) CreateManager(db *sql.DB) error {
+func (user *User) CreateAdmin(db *sql.DB) error {
 	res, err := db.Exec(
-		"INSERT INTO users (name, age) VALUES (?, ?)",
-		manager.Name, manager.Age)
+		"INSERT INTO user (email, userTypeID, password, createdBy) VALUES (?, ?, ?, ?)",
+		user.Email, user.Type, user.Password, user.CreatedBy)
 	if err != nil {
 		return err
 	}
@@ -101,54 +79,21 @@ func (manager *User) CreateManager(db *sql.DB) error {
 	if err != nil {
 		return err
 	}
-	manager.ID = int(insertID)
+	user.ID = int(insertID)
 	return nil
 }
 
-func (manager *User) UpdateManager(db *sql.DB) error {
+func (user *User) UpdateAdmin(db *sql.DB) error {
 	_, err := db.Exec(
-		"UPDATE users SET name=?, age=? WHERE id=?",
-		manager.Name, manager.Age, manager.ID)
+		"UPDATE user SET email=?, password=? WHERE userID=?",
+		user.Email, user.Password, user.ID)
 	return err
 }
 
-func (manager *User) DeleteManager(db *sql.DB) error {
-	_, err := db.Exec(
-		"DELETE FROM users WHERE id=?",
-		manager.ID)
-	return err
-}
-
-func GetAdmins(db *sql.DB) (Users, error) {
-	rows, err := db.Query(
-		"SELECT id, name, age FROM users")
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
-	var admins Users
-	for rows.Next() {
-		var admin User
-		err := rows.Scan(&admin.ID, &admin.Name, &admin.Age)
-		if err != nil {
-			return nil, err
-		}
-		admins = append(admins, admin)
-	}
-	return admins, nil
-}
-
-func (admin *User) GetAdmin(db *sql.DB) error {
-	return db.QueryRow(
-		"SELECT id, name, age FROM users WHERE id = ?",
-		admin.ID).Scan(&admin.ID, &admin.Name, &admin.Age)
-}
-
-func (admin *User) CreateAdmin(db *sql.DB) error {
+func (user *User) CreateManager(db *sql.DB) error {
 	res, err := db.Exec(
-		"INSERT INTO users (name, age) VALUES (?, ?)",
-		admin.Name, admin.Age)
+		"INSERT INTO user (firstName, lastName, email, userTypeID, password, createdBy, signatureID) VALUES (?, ?, ?, ?, ?, ?, ?)",
+		user.FirstName, user.LastName, user.Email, user.Type, user.Password, user.CreatedBy, user.SigID)
 	if err != nil {
 		return err
 	}
@@ -156,20 +101,44 @@ func (admin *User) CreateAdmin(db *sql.DB) error {
 	if err != nil {
 		return err
 	}
-	admin.ID = int(insertID)
+	user.ID = int(insertID)
 	return nil
 }
 
-func (admin *User) UpdateAdmin(db *sql.DB) error {
+func (user *User) UpdateManager(db *sql.DB) error {
 	_, err := db.Exec(
-		"UPDATE users SET name=?, age=? WHERE id=?",
-		admin.Name, admin.Age, admin.ID)
+		"UPDATE user SET firstName=?, lastName=?, email=?, password=? WHERE userID=?",
+		user.FirstName, user.LastName, user.Email, user.Password)
 	return err
 }
 
-func (admin *User) DeleteAdmin(db *sql.DB) error {
+func (user *User) DeleteUser(db *sql.DB) error {
 	_, err := db.Exec(
-		"DELETE FROM users WHERE id=?",
-		admin.ID)
+		"DELETE FROM users WHERE userID=?",
+		user.ID)
 	return err
 }
+
+// TODO: implement after awards are reimplemented according to new db model.
+//func (user *User) GetManagerAwards(db *sql.DB) (Awards, error) {
+//	rows, err := db.Query(
+//		"SELECT id, region, type, recipient, creator, date, created FROM awards WHERE creator = ?",
+//		user.ID)
+//	if err != nil {
+//		return nil, err
+//	}
+//	defer rows.Close()
+//
+//	var awards Awards
+//	for rows.Next() {
+//		var award Award
+//		err := rows.Scan(
+//			&award.ID, &award.Region, &award.Type, &award.RecipientName,
+//			&award.CreatorID, &award.CreationDate, &award.ConferralDate)
+//		if err != nil {
+//			return nil, err
+//		}
+//		awards = append(awards, award)
+//	}
+//	return awards, nil
+//}
