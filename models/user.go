@@ -6,15 +6,15 @@ import (
 )
 
 type User struct {
-	ID        int            `json:"userid"`
-	FirstName string         `json:"firstname"`
-	LastName  string         `json:"lastname"`
-	Email     string         `json:"email"`
-	Type      int            `json:"usertype"`
-	Password  string         `json:"password"`
-	CreatedOn mysql.NullTime `json:"created"`
-	CreatedBy int            `json:"creator"`
-	SigID     sql.NullInt64  `json:"signature"`
+	ID          int            `json:"userid"`
+	FirstName   string         `json:"firstname"`
+	LastName    string         `json:"lastname"`
+	Email       string         `json:"email"`
+	Type        int            `json:"usertype"`
+	Password    string         `json:"password"`
+	CreatedDate mysql.NullTime `json:"createddate"`
+	CreatedBy   int            `json:"createdby"`
+	SigID       sql.NullInt64  `json:"signature"`
 }
 
 type Users []User
@@ -30,7 +30,7 @@ func GetUsers(db *sql.DB) (Users, error) {
 	var users Users
 	for rows.Next() {
 		var user User
-		err := rows.Scan(&user.ID, &user.FirstName, &user.LastName, &user.Email, &user.Type, &user.Password, &user.CreatedOn,
+		err := rows.Scan(&user.ID, &user.FirstName, &user.LastName, &user.Email, &user.Type, &user.Password, &user.CreatedDate,
 			&user.CreatedBy, &user.SigID)
 		if err != nil {
 			return nil, err
@@ -51,7 +51,7 @@ func GetUsersByType(db *sql.DB, usertype int) (Users, error) {
 	var users Users
 	for rows.Next() {
 		var user User
-		err := rows.Scan(&user.ID, &user.FirstName, &user.LastName, &user.Email, &user.Type, &user.Password, &user.CreatedOn,
+		err := rows.Scan(&user.ID, &user.FirstName, &user.LastName, &user.Email, &user.Type, &user.Password, &user.CreatedDate,
 			&user.CreatedBy, &user.SigID)
 		if err != nil {
 			return nil, err
@@ -64,14 +64,21 @@ func GetUsersByType(db *sql.DB, usertype int) (Users, error) {
 func (user *User) GetUser(db *sql.DB) error {
 	return db.QueryRow(
 		"SELECT userID, firstName, lastName, email, userTypeID, password, createdOn, createdBy, signatureID FROM user WHERE email = ?",
-		user.Email).Scan(&user.ID, &user.FirstName, &user.LastName, &user.Email, &user.Type, &user.Password, &user.CreatedOn,
+		user.Email).Scan(&user.ID, &user.FirstName, &user.LastName, &user.Email, &user.Type, &user.Password, &user.CreatedDate,
+		&user.CreatedBy, &user.SigID)
+}
+
+func (user *User) GetUserByType(db *sql.DB, usertype int) error {
+	return db.QueryRow(
+		"SELECT userID, firstName, lastName, email, userTypeID, password, createdOn, createdBy, signatureID FROM user WHERE userID = ? AND userTypeID=?",
+		user.ID, usertype).Scan(&user.ID, &user.FirstName, &user.LastName, &user.Email, &user.Type, &user.Password, &user.CreatedDate,
 		&user.CreatedBy, &user.SigID)
 }
 
 func (user *User) CreateAdmin(db *sql.DB) error {
 	res, err := db.Exec(
 		"INSERT INTO user (email, userTypeID, password, createdBy) VALUES (?, ?, ?, ?)",
-		user.Email, user.Type, user.Password, user.CreatedBy)
+		user.Email, 1, user.Password, user.CreatedBy)
 	if err != nil {
 		return err
 	}
@@ -93,7 +100,7 @@ func (user *User) UpdateAdmin(db *sql.DB) error {
 func (user *User) CreateManager(db *sql.DB) error {
 	res, err := db.Exec(
 		"INSERT INTO user (firstName, lastName, email, userTypeID, password, createdBy, signatureID) VALUES (?, ?, ?, ?, ?, ?, ?)",
-		user.FirstName, user.LastName, user.Email, user.Type, user.Password, user.CreatedBy, user.SigID)
+		user.FirstName, user.LastName, user.Email, 2, user.Password, user.CreatedBy, user.SigID)
 	if err != nil {
 		return err
 	}

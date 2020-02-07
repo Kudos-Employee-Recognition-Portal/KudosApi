@@ -71,6 +71,56 @@ func GetUser(db *sql.DB) http.Handler {
 	})
 }
 
+func GetAdmin(db *sql.DB) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		vars := mux.Vars(r)
+		id, err := strconv.Atoi(vars["id"])
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		admin := models.User{ID: id}
+		err = admin.GetUserByType(db, 1)
+		if err != nil {
+			switch err {
+			case sql.ErrNoRows:
+				http.Error(w, err.Error(), http.StatusNotFound)
+			default:
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+			}
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		_ = json.NewEncoder(w).Encode(admin)
+	})
+}
+
+func GetManager(db *sql.DB) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		vars := mux.Vars(r)
+		id, err := strconv.Atoi(vars["id"])
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		manager := models.User{ID: id}
+		err = manager.GetUserByType(db, 2)
+		if err != nil {
+			switch err {
+			case sql.ErrNoRows:
+				http.Error(w, err.Error(), http.StatusNotFound)
+			default:
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+			}
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		_ = json.NewEncoder(w).Encode(manager)
+	})
+}
+
 func CreateAdmin(db *sql.DB) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		var admin models.User
@@ -130,7 +180,7 @@ func CreateManager(db *sql.DB) http.Handler {
 		defer r.Body.Close()
 		manager.Type = 2
 
-		err = manager.CreateAdmin(db)
+		err = manager.CreateManager(db)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return

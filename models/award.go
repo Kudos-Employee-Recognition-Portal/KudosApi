@@ -2,25 +2,24 @@ package models
 
 import (
 	"database/sql"
-	"time"
+	"github.com/go-sql-driver/mysql"
 )
 
 type Award struct {
-	ID             int       `json:"id"`
-	Region         string    `json:"region"`
-	Type           string    `json:"type"`
-	RecipientName  string    `json:"recipient"`
-	RecipientEmail string    `json:"email"`
-	CreatorID      int       `json:"creator"`
-	ConferralDate  time.Time `json:"date"`
-	CreationDate   time.Time `json:"created"`
+	ID             int            `json:"id"`
+	Region         string         `json:"region"`
+	Type           string         `json:"type"`
+	RecipientName  string         `json:"recipientname"`
+	RecipientEmail string         `json:"recipientemail"`
+	CreatorID      int            `json:"creatorid"`
+	Timestamp      mysql.NullTime `json:"timestamp"`
 }
 
 type Awards []Award
 
 func GetAwards(db *sql.DB) (Awards, error) {
 	rows, err := db.Query(
-		"SELECT id, region, type, recipient, creator, date, created FROM awards")
+		"SELECT awardID, regionID, type, recipientName, recipientEmail, creatorID, timestamp FROM award")
 	if err != nil {
 		return nil, err
 	}
@@ -31,7 +30,7 @@ func GetAwards(db *sql.DB) (Awards, error) {
 		var award Award
 		err := rows.Scan(
 			&award.ID, &award.Region, &award.Type, &award.RecipientName,
-			&award.CreatorID, &award.CreationDate, &award.ConferralDate)
+			&award.RecipientEmail, &award.CreatorID, &award.Timestamp)
 		if err != nil {
 			return nil, err
 		}
@@ -44,17 +43,17 @@ func GetAwards(db *sql.DB) (Awards, error) {
 
 func (award *Award) GetAward(db *sql.DB) error {
 	return db.QueryRow(
-		"SELECT id, region, type, recipient, creator, date, created FROM awards WHERE id = ?",
+		"SELECT regionID, type, recipientName, recipientEmail, creatorID, timestamp FROM award WHERE awardID=?",
 		award.ID).Scan(
 		&award.Region, &award.Type, &award.RecipientName,
-		&award.CreatorID, &award.CreationDate, &award.ConferralDate)
+		&award.RecipientEmail, &award.CreatorID, &award.Timestamp)
 }
 
 func (award *Award) CreateAward(db *sql.DB) error {
 	res, err := db.Exec(
-		"INSERT INTO awards (region, type, recipient, creator, date, created) VALUES (?, ?, ?, ?, ?, ?)",
+		"INSERT INTO award (regionID, type, recipientName, recipientEmail, creatorID, timestamp) VALUES (?, ?, ?, ?, ?, ?)",
 		&award.Region, &award.Type, &award.RecipientName,
-		&award.CreatorID, &award.CreationDate, &award.ConferralDate)
+		&award.RecipientEmail, &award.CreatorID, &award.Timestamp)
 	if err != nil {
 		return err
 	}
@@ -69,7 +68,7 @@ func (award *Award) CreateAward(db *sql.DB) error {
 
 func (award *Award) DeleteAward(db *sql.DB) error {
 	_, err := db.Exec(
-		"DELETE FROM awards WHERE id=?",
+		"DELETE FROM award WHERE awardID=?",
 		award.ID)
 	return err
 }
