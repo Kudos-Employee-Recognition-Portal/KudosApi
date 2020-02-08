@@ -39,17 +39,17 @@
     - ![GET users postman call](documentation/images/postmen/POSTAward.PNG) 
 - POST /users/managers
     - creates a new manager with request body data and returns unique row id.
-    - ![GET users postman call](documentation/images/postmen/PostManager.PNG)
+    - ![GET users postman call](documentation/images/postmen/POSTManager.PNG)
 - POST /users/admins
     - creates a new admin with request body data and returns unique row id.
-    
+    - ![GET users postman call](documentation/images/postmen/POSTAdmin.PNG)
 ##
 - PUT /users/admins/{id}
     - modifies an admin specified by unique identifier, id, and returns the modified JSON object.
-    
+    - ![GET users postman call](documentation/images/postmen/PUTAdmin.PNG)
 - PUT /users/managers/{id}
     - modifies a manager specified by unique identifier, id, and returns the modified JSON object.
-    
+    - ![GET users postman call](documentation/images/postmen/PUTManager.PNG)
 ##
 - DELETE /awards/{id}
     - deletes the award row specified by unique identifier, id, from the database.
