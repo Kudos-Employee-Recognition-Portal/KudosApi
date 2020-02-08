@@ -115,7 +115,7 @@ func (user *User) CreateManager(db *sql.DB) error {
 func (user *User) UpdateManager(db *sql.DB) error {
 	_, err := db.Exec(
 		"UPDATE user SET firstName=?, lastName=?, email=?, password=? WHERE userID=?",
-		user.FirstName, user.LastName, user.Email, user.Password)
+		user.FirstName, user.LastName, user.Email, user.Password, user.ID)
 	return err
 }
 
