@@ -121,7 +121,7 @@ func (user *User) UpdateManager(db *sql.DB) error {
 
 func (user *User) DeleteUser(db *sql.DB) error {
 	_, err := db.Exec(
-		"DELETE FROM users WHERE userID=?",
+		"DELETE FROM user WHERE userID=?",
 		user.ID)
 	return err
 }
