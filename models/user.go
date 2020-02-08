@@ -77,8 +77,8 @@ func (user *User) GetUserByType(db *sql.DB, usertype int) error {
 
 func (user *User) CreateAdmin(db *sql.DB) error {
 	res, err := db.Exec(
-		"INSERT INTO user (email, userTypeID, password, createdBy) VALUES (?, ?, ?, ?)",
-		user.Email, 1, user.Password, user.CreatedBy)
+		"INSERT INTO user (firstName, lastName, email, userTypeID, password, createdBy, signatureID) VALUES (?, ?, ?, ?, ?, ?, ?)",
+		user.FirstName, user.LastName, user.Email, 1, user.Password, user.CreatedBy, user.SigID)
 	if err != nil {
 		return err
 	}
