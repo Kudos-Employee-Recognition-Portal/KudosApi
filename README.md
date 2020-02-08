@@ -7,28 +7,28 @@
 ## Endpoints
 - GET /awards
     - returns JSON list of award objects.
-    _![GET users postman call](documentation/images/postmen/GETAwards.PNG)
+    - ![GET users postman call](documentation/images/postmen/GETAwards.PNG)
 - GET /awards/{id}
     - returns JSON award object specified by unique identifier, id.
-    _![GET users postman call](documentation/images/postmen/GETAward.PNG)
+    - ![GET users postman call](documentation/images/postmen/GETAward.PNG)
 - GET /users
     - returns JSON list of user objects.
-    _![GET users postman call](documentation/images/postmen/GETUsers.PNG)
+    - ![GET users postman call](documentation/images/postmen/GETUsers.PNG)
 - GET /users/{email}
     - returns JSON user object specified by unique identifier, email.
-    _![GET users postman call](documentation/images/postmen/GETUser.PNG)
+    - ![GET users postman call](documentation/images/postmen/GETUser.PNG)
 - GET /users/admins
     - returns JSON list of admin objects.
-    _![GET users postman call](documentation/images/postmen/GETAdmins.PNG)
+    - ![GET users postman call](documentation/images/postmen/GETAdmins.PNG)
 - GET /users/admins/{id}
     - returns JSON admin object specified by unique identifier, id.
-    _![GET users postman call](documentation/images/postmen/GETAdmin.PNG)
+    - ![GET users postman call](documentation/images/postmen/GETAdmin.PNG)
 - GET /users/managers
     - returns JSON list of manager objects.
-    _![GET users postman call](documentation/images/postmen/GETManagers.PNG)
+    - ![GET users postman call](documentation/images/postmen/GETManagers.PNG)
 - GET /users/managers/{id}
     - returns JSON manager object specified by unique identifier, id.
-    _![GET users postman call](documentation/images/postmen/GETManager.PNG)
+    - ![GET users postman call](documentation/images/postmen/GETManager.PNG)
 - GET /users/managers/{id}/awards
     - In progress...
     - returns JSON list of award objects specified by unique manager identifier, id.
