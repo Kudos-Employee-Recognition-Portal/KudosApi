@@ -53,10 +53,10 @@
 ##
 - DELETE /awards/{id}
     - deletes the award row specified by unique identifier, id, from the database.
-    
+    - ![GET users postman call](documentation/images/postmen/DELETEAward.PNG)
 - DELETE /users/admins/{id}
     - deletes the admin row specified by unique identifier, id, from the database.
-    
+    - ![GET users postman call](documentation/images/postmen/PUTManager.PNG)
 - DELETE /users/managers/{id}
     - deletes the manager rows specified by unique identifier, id, from the database.
-    
+    - ![GET users postman call](documentation/images/postmen/PUTManager.PNG)
