@@ -9,6 +9,8 @@ import (
 	"strconv"
 )
 
+// TODO: assert that user type is correct for admin vs manager receiver handlers before passing to model functions.
+
 // Note: r, w used for request and response objects respectively by emerging convention in golang apis.
 func GetUsers(db *sql.DB) http.Handler {
 	// Return the handler as a closure over the database object.
