@@ -30,8 +30,8 @@
     - returns JSON manager object specified by unique identifier, id.
     - ![GET users postman call](documentation/images/postmen/GETManager.PNG)
 - GET /users/managers/{id}/awards
-    - In progress...
     - returns JSON list of award objects specified by unique manager identifier, id.
+    - ![GET users postman call](documentation/images/postmen/GETManagerAwards.PNG)
 ##
 - POST /awards/
     - creates a new award with request body data and returns unique row id.
