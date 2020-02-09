@@ -141,7 +141,7 @@ func (user *User) GetManagerAwards(db *sql.DB) (Awards, error) {
 		var award Award
 		err := rows.Scan(
 			&award.ID, &award.Region, &award.Type, &award.RecipientName,
-			&award.CreatorID, &award.CreationDate, &award.ConferralDate)
+			&award.RecipientEmail, &award.CreatorID, &award.Timestamp)
 		if err != nil {
 			return nil, err
 		}
