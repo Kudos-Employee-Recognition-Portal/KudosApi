@@ -124,6 +124,27 @@ func GetManager(db *sql.DB) http.Handler {
 	})
 }
 
+func GetManagerAwards(db *sql.DB) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		vars := mux.Vars(r)
+		id, err := strconv.Atoi(vars["id"])
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		manager := models.User{ID: id}
+		awards, err := manager.GetManagerAwards(db)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		// Encoding error is explicitly ignored as data structure is verified in model method.
+		_ = json.NewEncoder(w).Encode(awards)
+	})
+}
+
 func CreateAdmin(db *sql.DB) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		var admin models.User

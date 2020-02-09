@@ -126,26 +126,26 @@ func (user *User) DeleteUser(db *sql.DB) error {
 	return err
 }
 
-// TODO: implement after awards are reimplemented according to new db model.
-//func (user *User) GetManagerAwards(db *sql.DB) (Awards, error) {
-//	rows, err := db.Query(
-//		"SELECT id, region, type, recipient, creator, date, created FROM awards WHERE creator = ?",
-//		user.ID)
-//	if err != nil {
-//		return nil, err
-//	}
-//	defer rows.Close()
-//
-//	var awards Awards
-//	for rows.Next() {
-//		var award Award
-//		err := rows.Scan(
-//			&award.ID, &award.Region, &award.Type, &award.RecipientName,
-//			&award.CreatorID, &award.CreationDate, &award.ConferralDate)
-//		if err != nil {
-//			return nil, err
-//		}
-//		awards = append(awards, award)
-//	}
-//	return awards, nil
-//}
+// Function located here due to having the common receiver, user.
+func (user *User) GetManagerAwards(db *sql.DB) (Awards, error) {
+	rows, err := db.Query(
+		"SELECT awardID, regionID, type, recipientName, recipientEmail, creatorID, timestamp FROM award WHERE creatorID = ?",
+		user.ID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var awards Awards
+	for rows.Next() {
+		var award Award
+		err := rows.Scan(
+			&award.ID, &award.Region, &award.Type, &award.RecipientName,
+			&award.CreatorID, &award.CreationDate, &award.ConferralDate)
+		if err != nil {
+			return nil, err
+		}
+		awards = append(awards, award)
+	}
+	return awards, nil
+}

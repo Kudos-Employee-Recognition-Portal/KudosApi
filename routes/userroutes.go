@@ -13,6 +13,7 @@ func UsersRouter(r *mux.Router, db *sql.DB) {
 	r.Handle("/managers/{id}", handlers.GetManager(db)).Methods("GET")
 	r.Handle("/managers/{id}", handlers.UpdateManager(db)).Methods("PUT")
 	r.Handle("/managers/{id}", handlers.DeleteUser(db)).Methods("DELETE")
+	r.Handle("/managers/{id}/awards", handlers.GetManagerAwards(db)).Methods("GET")
 	r.Handle("/admins", handlers.GetAdmins(db)).Methods("GET")
 	r.Handle("/admins", handlers.CreateAdmin(db)).Methods("POST")
 	r.Handle("/admins/{id}", handlers.GetAdmin(db)).Methods("GET")
@@ -20,6 +21,4 @@ func UsersRouter(r *mux.Router, db *sql.DB) {
 	r.Handle("/admins/{id}", handlers.DeleteUser(db)).Methods("DELETE")
 	r.Handle("/", handlers.GetUsers(db)).Methods("GET")
 	r.Handle("/{email}", handlers.GetUser(db)).Methods("GET")
-	// TODO: implement awards by manager after awards model updated.
-	//r.Handle("/managers/{id}/awards", handlers.GetManagerAwards(db)).Methods("GET")
 }
