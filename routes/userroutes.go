@@ -13,6 +13,7 @@ func UsersRouter(r *mux.Router, db *sql.DB) {
 	r.Handle("/managers/{id}", handlers.GetManager(db)).Methods("GET")
 	r.Handle("/managers/{id}", handlers.UpdateManager(db)).Methods("PUT")
 	r.Handle("/managers/{id}", handlers.DeleteUser(db)).Methods("DELETE")
+	r.Handle("/managers/{id}/signature", handlers.UpdateManagerSignature(db)).Methods("PUT")
 	r.Handle("/managers/{id}/awards", handlers.GetManagerAwards(db)).Methods("GET")
 	r.Handle("/admins", handlers.GetAdmins(db)).Methods("GET")
 	r.Handle("/admins", handlers.CreateAdmin(db)).Methods("POST")

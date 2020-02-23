@@ -13,8 +13,7 @@ import (
 func GetAwards(db *sql.DB) http.Handler {
 	// Return the handler as a closure over the database object.
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		log.Println("Hit: GetAwards")
-		awards, err := models.GetAwards(db)
+		awards, err := models.GetAllAwards(db)
 		if err != nil {
 			http.Error(w, err.Error(), 500)
 			return

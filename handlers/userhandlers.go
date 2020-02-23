@@ -9,13 +9,11 @@ import (
 	"strconv"
 )
 
-// TODO: assert that user type is correct for admin vs manager receiver handlers before passing to model functions.
-
 // Note: r, w used for request and response objects respectively by emerging convention in golang apis.
 func GetUsers(db *sql.DB) http.Handler {
 	// Return the handler as a closure over the database object.
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		users, err := models.GetUsers(db)
+		users, err := models.GetAllUsers(db)
 		if err != nil {
 			// Write errors explicitly. Could be changed to http response text later.
 			http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -30,7 +28,7 @@ func GetUsers(db *sql.DB) http.Handler {
 
 func GetAdmins(db *sql.DB) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		users, err := models.GetUsersByType(db, 1)
+		users, err := models.GetAllAdmins(db)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
@@ -43,7 +41,7 @@ func GetAdmins(db *sql.DB) http.Handler {
 
 func GetManagers(db *sql.DB) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		managers, err := models.GetUsersByType(db, 2)
+		managers, err := models.GetAllManagers(db)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
@@ -58,7 +56,7 @@ func GetUser(db *sql.DB) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		user := models.User{Email: vars["email"]}
-		err := user.GetUser(db)
+		err := user.GetUserByEmail(db)
 		if err != nil {
 			switch err {
 			case sql.ErrNoRows:
@@ -83,7 +81,7 @@ func GetAdmin(db *sql.DB) http.Handler {
 			return
 		}
 		admin := models.User{ID: id}
-		err = admin.GetUserByType(db, 1)
+		err = admin.GetUserById(db)
 		if err != nil {
 			switch err {
 			case sql.ErrNoRows:
@@ -108,7 +106,7 @@ func GetManager(db *sql.DB) http.Handler {
 			return
 		}
 		manager := models.User{ID: id}
-		err = manager.GetUserByType(db, 2)
+		err = manager.GetManagerById(db)
 		if err != nil {
 			switch err {
 			case sql.ErrNoRows:
@@ -154,7 +152,7 @@ func CreateAdmin(db *sql.DB) http.Handler {
 			return
 		}
 		defer r.Body.Close()
-		admin.Type = 1
+		admin.Type = "admin"
 
 		err = admin.CreateAdmin(db)
 		if err != nil {
@@ -182,7 +180,7 @@ func UpdateAdmin(db *sql.DB) http.Handler {
 			return
 		}
 		admin.ID = id
-		err = admin.UpdateAdmin(db)
+		err = admin.UpdateUserInfo(db)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
@@ -202,7 +200,7 @@ func CreateManager(db *sql.DB) http.Handler {
 			return
 		}
 		defer r.Body.Close()
-		manager.Type = 2
+		manager.Type = "manager"
 
 		err = manager.CreateManager(db)
 		if err != nil {
@@ -230,7 +228,34 @@ func UpdateManager(db *sql.DB) http.Handler {
 			return
 		}
 		manager.ID = id
-		err = manager.UpdateManager(db)
+		err = manager.UpdateManagerInfo(db)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		_ = json.NewEncoder(w).Encode(manager)
+	})
+}
+
+func UpdateManagerSignature(db *sql.DB) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		vars := mux.Vars(r)
+		id, err := strconv.Atoi(vars["id"])
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		// TODO: get image from request, save to datastore, put url in model.
+		var manager models.User
+		err = json.NewDecoder(r.Body).Decode(&manager)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		manager.ID = id
+		err = manager.UpdateManagerSignature(db)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
