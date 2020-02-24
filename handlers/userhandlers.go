@@ -8,10 +8,11 @@ import (
 	"github.com/Kudos-Employee-Recognition-Portal/KudosApi/models"
 	"github.com/gorilla/mux"
 	"google.golang.org/api/option"
-	"log"
+	"io"
 	"net/http"
 	"os"
 	"strconv"
+	"time"
 )
 
 // Note: r, w used for request and response objects respectively by emerging convention in golang apis.
@@ -277,13 +278,14 @@ func SetManagerSignature(db *sql.DB) http.Handler {
 		file, handler, err := r.FormFile("image")
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
 		}
 		defer file.Close()
 
 		// Connect to the Google Cloud Storage bucket where signatures are stored.
 		ctx := context.Background()
 		client, err := storage.NewClient(ctx, option.WithCredentialsFile(os.Getenv("GOOGLE_APPLICATION_CREDENTIALS")))
-		// TODO: switch to inferred credentials when deployed.
+		// TODO: switch to inferred credentials when deployed, maybe.
 		//client, err := storage.NewClient(ctx)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -292,22 +294,24 @@ func SetManagerSignature(db *sql.DB) http.Handler {
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
+		ctx, cancel := context.WithTimeout(ctx, time.Second*60)
+		defer cancel()
+		objWriter := bkt.Object("user" + strconv.Itoa(id) + "signature").NewWriter(ctx)
+		_, err = io.Copy(objWriter, file)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+		// Trying out the other idiomatic error checking structure here.
+		if err = objWriter.Close(); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
 
-		log.Print(bkt.Attrs(ctx))
-		log.Println(handler.Filename)
-		log.Println(handler.Size)
-		log.Println(handler.Header)
-		// TODO: get image from request, save to datastore, put url in model.
-		//if err != nil {
-		//	http.Error(w, err.Error(), http.StatusBadRequest)
-		//	return
-		//}
-		//manager.ID = id
-		//err = manager.UpdateManagerSignature(db)
-		//if err != nil {
-		//	http.Error(w, err.Error(), http.StatusInternalServerError)
-		//	return
-		//}
+		manager.SigURL.String = "https://storage.cloud.google.com/kudosapi.appspot.com/user" + strconv.Itoa(id) + "signature"
+		err = manager.UpdateManagerSignature(db)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		_ = json.NewEncoder(w).Encode(manager)

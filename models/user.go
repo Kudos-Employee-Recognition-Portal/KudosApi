@@ -195,7 +195,7 @@ func (user *User) SaveManagerSignatureURL(db *sql.DB) error {
 func (user *User) UpdateManagerSignature(db *sql.DB) error {
 	_, err := db.Exec(
 		"UPDATE `manager` SET signatureURL = ? WHERE user_id = ?",
-		user.SigURL, user.ID)
+		user.SigURL.String, user.ID)
 	if err != nil {
 		return err
 	}
