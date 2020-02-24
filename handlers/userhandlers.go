@@ -274,8 +274,9 @@ func SetManagerSignature(db *sql.DB) http.Handler {
 		err = r.ParseMultipartForm(10 << 20)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusRequestEntityTooLarge)
+			return
 		}
-		file, handler, err := r.FormFile("image")
+		file, _, err := r.FormFile("image")
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
@@ -289,10 +290,12 @@ func SetManagerSignature(db *sql.DB) http.Handler {
 		//client, err := storage.NewClient(ctx)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
 		}
 		bkt := client.Bucket(os.Getenv("G_BUCKET_NAME"))
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
 		}
 		ctx, cancel := context.WithTimeout(ctx, time.Second*60)
 		defer cancel()
@@ -300,10 +303,12 @@ func SetManagerSignature(db *sql.DB) http.Handler {
 		_, err = io.Copy(objWriter, file)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
 		}
 		// Trying out the other idiomatic error checking structure here.
 		if err = objWriter.Close(); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
 		}
 
 		manager.SigURL.String = "https://storage.cloud.google.com/kudosapi.appspot.com/user" + strconv.Itoa(id) + "signature"
