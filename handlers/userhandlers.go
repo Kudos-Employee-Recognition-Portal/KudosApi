@@ -280,8 +280,11 @@ func SetManagerSignature(db *sql.DB) http.Handler {
 		}
 		defer file.Close()
 
+		// Connect to the Google Cloud Storage bucket where signatures are stored.
 		ctx := context.Background()
 		client, err := storage.NewClient(ctx, option.WithCredentialsFile(os.Getenv("GOOGLE_APPLICATION_CREDENTIALS")))
+		// TODO: switch to inferred credentials when deployed.
+		//client, err := storage.NewClient(ctx)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
@@ -289,11 +292,11 @@ func SetManagerSignature(db *sql.DB) http.Handler {
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
+
 		log.Print(bkt.Attrs(ctx))
 		log.Println(handler.Filename)
 		log.Println(handler.Size)
 		log.Println(handler.Header)
-
 		// TODO: get image from request, save to datastore, put url in model.
 		//if err != nil {
 		//	http.Error(w, err.Error(), http.StatusBadRequest)
