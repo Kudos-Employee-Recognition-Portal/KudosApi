@@ -25,6 +25,29 @@ func GetAwards(db *sql.DB) http.Handler {
 	})
 }
 
+func QueryAwards(db *sql.DB) http.Handler {
+	// Return the handler as a closure over the database object.
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+
+		var award models.Award
+		award.QueryDates.StartDate = r.URL.Query().Get("startdate")
+		award.QueryDates.EndDate = r.URL.Query().Get("enddate")
+		award.Type = r.URL.Query().Get("type")
+		award.RecipientName = r.URL.Query().Get("recipientname")
+		award.RecipientEmail = r.URL.Query().Get("recipientemail")
+		award.Region.Name = r.URL.Query().Get("regionname")
+		awards, err := award.QueryAwards(db)
+		if err != nil {
+			http.Error(w, err.Error(), 500)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		// Encoding error is explicitly ignored as data structure is verified in model method.
+		_ = json.NewEncoder(w).Encode(awards)
+	})
+}
+
 func CreateAward(db *sql.DB) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		log.Println("Hit: CreateAward")

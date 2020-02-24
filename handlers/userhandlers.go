@@ -228,6 +228,11 @@ func UpdateManager(db *sql.DB) http.Handler {
 			return
 		}
 		manager.ID = id
+		err = manager.UpdateUserInfo(db)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
 		err = manager.UpdateManagerInfo(db)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)

@@ -125,17 +125,18 @@ func (user *User) CreateAdmin(db *sql.DB) error {
 		tx.Rollback()
 		return err
 	}
-	res, err = stmt2.Exec(res.LastInsertId())
-	if err != nil {
-		tx.Rollback()
-		return err
-	}
-	tx.Commit()
 	insertID, err := res.LastInsertId()
 	if err != nil {
 		return err
 	}
 	user.ID = int(insertID)
+	res, err = stmt2.Exec(user.ID)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+	tx.Commit()
+
 	return nil
 }
 
@@ -176,7 +177,7 @@ func (user *User) UpdateUserInfo(db *sql.DB) error {
 
 func (user *User) UpdateManagerInfo(db *sql.DB) error {
 	_, err := db.Exec(
-		"UPDATE `manager` SET firstName=?, lastName=? WHERE userID=?",
+		"UPDATE `manager` SET firstName=?, lastName=? WHERE user_id = ?",
 		user.FirstName, user.LastName, user.ID)
 	return err
 }
@@ -197,7 +198,7 @@ func (user *User) UpdateManagerSignature(db *sql.DB) error {
 //	where the user is listed as the creator, in order to prevent an accumulation of orphaned rows.
 func (user *User) DeleteUser(db *sql.DB) error {
 	_, err := db.Exec(
-		"DELETE FROM user WHERE userID=?",
+		"DELETE FROM user WHERE id = ?",
 		user.ID)
 	return err
 }

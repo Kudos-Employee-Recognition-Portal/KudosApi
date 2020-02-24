@@ -32,7 +32,7 @@ type Awards []Award
 
 func GetAllAwards(db *sql.DB) (Awards, error) {
 	rows, err := db.Query(
-		"SELECT a.id, r.id, r.name, a.type, a.recipientName, a.recipientEmail, a.createdOn, m.firstName, m.lastName " +
+		"SELECT a.id, r.id, r.name, a.type, a.recipientName, a.recipientEmail, a.createdOn, m.user_id, m.firstName, m.lastName " +
 			"FROM award a " +
 			"JOIN region r ON a.region_id = r.id " +
 			"JOIN manager m ON a.createdBy = m.user_id ")
@@ -46,7 +46,8 @@ func GetAllAwards(db *sql.DB) (Awards, error) {
 		var award Award
 		err := rows.Scan(
 			&award.ID, &award.Region.ID, &award.Region.Name, &award.Type, &award.RecipientName,
-			&award.RecipientEmail, &award.CreatedOn, &award.CreatedBy.FirstName, &award.CreatedBy.LastName)
+			&award.RecipientEmail, &award.CreatedOn,
+			&award.CreatedBy.ID, &award.CreatedBy.FirstName, &award.CreatedBy.LastName)
 		if err != nil {
 			return nil, err
 		}
@@ -56,16 +57,16 @@ func GetAllAwards(db *sql.DB) (Awards, error) {
 }
 
 func (award *Award) QueryAwards(db *sql.DB) (Awards, error) {
-	rows, err := db.Query(
-		"SELECT a.id, r.name, a.type, a.recipientName, a.recipientEmail, a.createdOn, m.firstName, m.lastName "+
-			"FROM award a "+
-			"JOIN region r ON a.region_id = r.id "+
-			"JOIN manager m ON a.createdBy = m.user_id "+
-			"WHERE (a.createdOn BETWEEN ? AND ?) "+
-			"AND (? IS NULL OR a.type LIKE ?) "+
-			"AND (? IS NULL OR a.recipientName LIKE ?) "+
-			"AND (? IS NULL OR a.recipientEmail LIKE ?) "+
-			"AND (? IS NULL OR r.name LIKE ?) ",
+	rows, err := db.Query("SELECT a.id, r.id, r.name, a.type, a.recipientName, a.recipientEmail, a.createdOn, "+
+		"m.user_id, m.firstName, m.lastName "+
+		"FROM award a "+
+		"JOIN region r ON a.region_id = r.id "+
+		"JOIN manager m ON a.createdBy = m.user_id "+
+		"WHERE (a.createdOn BETWEEN ? AND ?) "+
+		"AND (? IS NULL OR a.type LIKE ?) "+
+		"AND (? IS NULL OR a.recipientName LIKE ?) "+
+		"AND (? IS NULL OR a.recipientEmail LIKE ?) "+
+		"AND (? IS NULL OR r.name LIKE ?) ",
 		award.QueryDates.StartDate, award.QueryDates.EndDate,
 		award.Type, "%"+award.Type+"%",
 		award.RecipientName, "%"+award.RecipientName+"%",
@@ -80,8 +81,9 @@ func (award *Award) QueryAwards(db *sql.DB) (Awards, error) {
 	for rows.Next() {
 		var award Award
 		err := rows.Scan(
-			&award.ID, &award.Region, &award.Type, &award.RecipientName,
-			&award.RecipientEmail, &award.CreatedOn, &award.CreatedBy.FirstName, &award.CreatedBy.LastName)
+			&award.ID, &award.Region.ID, &award.Region.Name, &award.Type, &award.RecipientName,
+			&award.RecipientEmail, &award.CreatedOn,
+			&award.CreatedBy.ID, &award.CreatedBy.FirstName, &award.CreatedBy.LastName)
 		if err != nil {
 			return nil, err
 		}
@@ -92,19 +94,22 @@ func (award *Award) QueryAwards(db *sql.DB) (Awards, error) {
 
 func (award *Award) GetAward(db *sql.DB) error {
 	return db.QueryRow(
-		"SELECT a.id, r.name, a.type, a.recipientName, a.recipientEmail, a.createdOn, m.firstName, m.lastName "+
+		"SELECT a.id, r.id, r.name, a.type, a.recipientName, a.recipientEmail, a.createdOn, "+
+			"m.user_id, m.firstName, m.lastName, m.signatureURL "+
 			"FROM award a "+
 			"JOIN region r ON a.region_id = r.id "+
 			"JOIN manager m ON a.createdBy = m.user_id "+
 			"WHERE a.id = ?",
 		award.ID).Scan(
-		&award.ID, &award.Region, &award.Type, &award.RecipientName,
-		&award.RecipientEmail, &award.CreatedOn, &award.CreatedBy.FirstName, &award.CreatedBy.LastName)
+		&award.ID, &award.Region.ID, &award.Region.Name, &award.Type, &award.RecipientName,
+		&award.RecipientEmail, &award.CreatedOn,
+		&award.CreatedBy.ID, &award.CreatedBy.FirstName, &award.CreatedBy.LastName,
+		&award.CreatedBy.SigURL)
 }
 
 func (award *Award) CreateAward(db *sql.DB) error {
 	res, err := db.Exec(
-		"INSERT INTO award (regionID, type, recipientName, recipientEmail, createdBy) "+
+		"INSERT INTO award (region_id, type, recipientName, recipientEmail, createdBy) "+
 			"VALUES (?, ?, ?, ?, ?)",
 		&award.Region.ID, &award.Type, &award.RecipientName,
 		&award.RecipientEmail, &award.CreatedBy.ID)
