@@ -185,6 +185,11 @@ func UpdateAdmin(db *sql.DB) http.Handler {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
+		err = admin.GetUserById(db)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		_ = json.NewEncoder(w).Encode(admin)
@@ -234,6 +239,11 @@ func UpdateManager(db *sql.DB) http.Handler {
 			return
 		}
 		err = manager.UpdateManagerInfo(db)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		err = manager.GetUserById(db)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return

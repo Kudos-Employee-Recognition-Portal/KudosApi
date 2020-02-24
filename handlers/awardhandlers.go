@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"time"
 )
 
 func GetAwards(db *sql.DB) http.Handler {
@@ -28,11 +29,16 @@ func GetAwards(db *sql.DB) http.Handler {
 func QueryAwards(db *sql.DB) http.Handler {
 	// Return the handler as a closure over the database object.
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-
 		var award models.Award
 		award.QueryDates.StartDate = r.URL.Query().Get("startdate")
+		if award.QueryDates.StartDate == "" {
+			award.QueryDates.StartDate = "2000-01-01"
+		}
 		award.QueryDates.EndDate = r.URL.Query().Get("enddate")
-		award.Type = r.URL.Query().Get("type")
+		if award.QueryDates.EndDate == "" {
+			award.QueryDates.EndDate = time.Now().String()
+		}
+		award.Type = r.URL.Query().Get("awardtype")
 		award.RecipientName = r.URL.Query().Get("recipientname")
 		award.RecipientEmail = r.URL.Query().Get("recipientemail")
 		award.Region.Name = r.URL.Query().Get("regionname")

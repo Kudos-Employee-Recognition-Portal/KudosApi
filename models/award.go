@@ -18,6 +18,8 @@ type Award struct {
 	QueryDates dateRange `json:"daterange"`
 }
 
+// Future: implement graphQL interface.
+
 type region struct {
 	ID   int    `json:"regionid"`
 	Name string `json:"regionname"`

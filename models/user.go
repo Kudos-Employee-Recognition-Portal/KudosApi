@@ -18,6 +18,8 @@ type User struct {
 	SigURL    sql.NullString `json:"signature"`
 }
 
+// Future: implement graphQL interface.
+
 type Users []User
 
 // Get basic user information, primarily for login retrieval.
@@ -206,7 +208,8 @@ func (user *User) DeleteUser(db *sql.DB) error {
 // Function located here due to having the common receiver, user, but notably returns a list of Awards.
 func (user *User) GetManagerAwards(db *sql.DB) (Awards, error) {
 	rows, err := db.Query(
-		"SELECT a.id, r.id, r.name, a.type, a.recipientName, a.recipientEmail, a.createdOn, m.user_id "+
+		"SELECT a.id, r.id, r.name, a.type, a.recipientName, a.recipientEmail, a.createdOn, "+
+			"m.user_id, m.firstName, m.lastName "+
 			"FROM award a "+
 			"JOIN region r ON a.region_id = r.id "+
 			"JOIN manager m ON a.createdBy = m.user_id "+
@@ -222,7 +225,7 @@ func (user *User) GetManagerAwards(db *sql.DB) (Awards, error) {
 		var award Award
 		err := rows.Scan(
 			&award.ID, &award.Region.ID, &award.Region.Name, &award.Type, &award.RecipientName,
-			&award.RecipientEmail, &award.CreatedOn, &award.CreatedBy.ID)
+			&award.RecipientEmail, &award.CreatedOn, &award.CreatedBy.ID, &award.CreatedBy.FirstName, &award.CreatedBy.LastName)
 		if err != nil {
 			return nil, err
 		}
