@@ -184,6 +184,12 @@ func (user *User) UpdateManagerInfo(db *sql.DB) error {
 	return err
 }
 
+func (user *User) SaveManagerSignatureURL(db *sql.DB) error {
+	_, err := db.Exec("UPDATE `manager` SET signatureURL=? WHERE user_id=?",
+		&user.SigURL, &user.ID)
+	return err
+}
+
 // Update a manager's signature info: this is done after the user has uploaded an image, it has been stored in the
 //	datastore and a url has been generated.
 func (user *User) UpdateManagerSignature(db *sql.DB) error {

@@ -3,3 +3,4 @@ config.go
 .env
 *.exe
 /dev.log
+./kudosapi-e4b500e816fe.json

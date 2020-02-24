@@ -1,11 +1,16 @@
 package handlers
 
 import (
+	"cloud.google.com/go/storage"
+	"context"
 	"database/sql"
 	"encoding/json"
 	"github.com/Kudos-Employee-Recognition-Portal/KudosApi/models"
 	"github.com/gorilla/mux"
+	"google.golang.org/api/option"
+	"log"
 	"net/http"
+	"os"
 	"strconv"
 )
 
@@ -254,7 +259,7 @@ func UpdateManager(db *sql.DB) http.Handler {
 	})
 }
 
-func UpdateManagerSignature(db *sql.DB) http.Handler {
+func SetManagerSignature(db *sql.DB) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		id, err := strconv.Atoi(vars["id"])
@@ -262,19 +267,44 @@ func UpdateManagerSignature(db *sql.DB) http.Handler {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
-		// TODO: get image from request, save to datastore, put url in model.
-		var manager models.User
-		err = json.NewDecoder(r.Body).Decode(&manager)
+		manager := models.User{ID: id}
+
+		// Strange but true, idiomatic use a left shift operator to set maxMemory to 20MB
+		err = r.ParseMultipartForm(10 << 20)
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
+			http.Error(w, err.Error(), http.StatusRequestEntityTooLarge)
 		}
-		manager.ID = id
-		err = manager.UpdateManagerSignature(db)
+		file, handler, err := r.FormFile("image")
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
 		}
+		defer file.Close()
+
+		ctx := context.Background()
+		client, err := storage.NewClient(ctx, option.WithCredentialsFile(os.Getenv("GOOGLE_APPLICATION_CREDENTIALS")))
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+		bkt := client.Bucket(os.Getenv("G_BUCKET_NAME"))
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+		log.Print(bkt.Attrs(ctx))
+		log.Println(handler.Filename)
+		log.Println(handler.Size)
+		log.Println(handler.Header)
+
+		// TODO: get image from request, save to datastore, put url in model.
+		//if err != nil {
+		//	http.Error(w, err.Error(), http.StatusBadRequest)
+		//	return
+		//}
+		//manager.ID = id
+		//err = manager.UpdateManagerSignature(db)
+		//if err != nil {
+		//	http.Error(w, err.Error(), http.StatusInternalServerError)
+		//	return
+		//}
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		_ = json.NewEncoder(w).Encode(manager)

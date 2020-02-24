@@ -6,6 +6,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
+// TODO: add path variable matching.
 func AwardsRouter(r *mux.Router, db *sql.DB) {
 	r.StrictSlash(true)
 	r.Handle("/", handlers.CreateAward(db)).Methods("POST")
@@ -15,5 +16,4 @@ func AwardsRouter(r *mux.Router, db *sql.DB) {
 	r.Handle("/search", handlers.QueryAwards(db)).Methods("GET")
 	r.Handle("/", handlers.GetAwards(db)).Methods("GET")
 	r.Handle("/{id}", handlers.GetAward(db)).Methods("GET")
-	// TODO: Query parameter handling route.
 }
