@@ -273,12 +273,12 @@ func SetManagerSignature(db *sql.DB) http.Handler {
 		// Strange but true, idiomatic use a left shift operator to set maxMemory to 20MB
 		err = r.ParseMultipartForm(10 << 20)
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusRequestEntityTooLarge)
+			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
 		file, _, err := r.FormFile("image")
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
 		defer file.Close()
