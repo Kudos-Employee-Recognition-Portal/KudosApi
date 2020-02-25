@@ -293,10 +293,6 @@ func SetManagerSignature(db *sql.DB) http.Handler {
 			return
 		}
 		bkt := client.Bucket(os.Getenv("G_BUCKET_NAME"))
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
 		ctx, cancel := context.WithTimeout(ctx, time.Second*60)
 		defer cancel()
 		objWriter := bkt.Object("user" + strconv.Itoa(id) + "signature").NewWriter(ctx)

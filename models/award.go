@@ -123,7 +123,6 @@ func (award *Award) CreateAward(db *sql.DB) error {
 		return err
 	}
 	award.ID = int(insertID)
-	// TODO: Insert function call here to generate LaTeX to PDF to email chain from populated award.
 	return nil
 }
 

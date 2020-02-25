@@ -5,8 +5,11 @@ import (
 	"encoding/json"
 	"github.com/Kudos-Employee-Recognition-Portal/KudosApi/models"
 	"github.com/gorilla/mux"
+	"github.com/sendgrid/sendgrid-go"
+	"github.com/sendgrid/sendgrid-go/helpers/mail"
 	"log"
 	"net/http"
+	"os"
 	"strconv"
 	"time"
 )
@@ -69,6 +72,25 @@ func CreateAward(db *sql.DB) http.Handler {
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
+		}
+		// TODO: Insert function call here to generate LaTeX to PDF to email chain from populated award.
+		// tex2pdf
+
+		// Email via Twilio SendGrid API integration.
+		from := mail.NewEmail("Example User", "awardsteam@kudosapi.appspotmail.com")
+		subject := "Sending with SendGrid is Fun"
+		to := mail.NewEmail("Example User", "mathewmcdade@gmail.com")
+		plainTextContent := "and easy to do anywhere, even with Go"
+		htmlContent := "<strong>and easy to do anywhere, even with Go</strong>"
+		message := mail.NewSingleEmail(from, subject, to, plainTextContent, htmlContent)
+		client := sendgrid.NewSendClient(os.Getenv("KUDOS_API_SENDGRID"))
+		response, err := client.Send(message)
+		if err != nil {
+			log.Println(err)
+		} else {
+			log.Println(response.StatusCode)
+			log.Println(response.Body)
+			log.Println(response.Headers)
 		}
 
 		w.Header().Set("Content-Type", "application/json")
