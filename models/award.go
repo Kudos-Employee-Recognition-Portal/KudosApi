@@ -162,10 +162,10 @@ func (award *Award) EmailAward(filename string) error {
 	}
 	fileAttachment := mail.NewAttachment()
 	fileAttachment.SetContent(base64.StdEncoding.EncodeToString(data))
-	fileAttachment.SetType("text/plain")
-	fileAttachment.SetFilename("certificate.md")
+	fileAttachment.SetType("application/pdf")
+	fileAttachment.SetFilename("certificate.pdf")
 	fileAttachment.SetDisposition("attachment")
-	fileAttachment.SetContentID("Test Attachment")
+	fileAttachment.SetContentID("Your Award")
 
 	// Add attachment to email.
 	email.AddAttachment(fileAttachment)
@@ -192,5 +192,5 @@ func (award *Award) Tex2Pdf() (string, error) {
 
 	// Save pdf to /tmp.
 
-	return "README.md", nil
+	return "congrats.pdf", nil
 }
