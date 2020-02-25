@@ -186,5 +186,11 @@ func (award *Award) EmailAward(filename string) error {
 }
 
 func (award *Award) Tex2Pdf() (string, error) {
+	// Insert relevant award object variables into tex template.
+
+	// Convert tex to pdf.
+
+	// Save pdf to /tmp.
+
 	return "README.md", nil
 }
