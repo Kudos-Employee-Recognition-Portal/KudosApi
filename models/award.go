@@ -161,7 +161,7 @@ func (award *Award) EmailAward(filename string) error {
 		return err
 	}
 	fileAttachment := mail.NewAttachment()
-	fileAttachment.SetContent(base64.StdEncoding.EncodeToString([]byte(data)))
+	fileAttachment.SetContent(base64.StdEncoding.EncodeToString(data))
 	fileAttachment.SetType("text/plain")
 	fileAttachment.SetFilename("certificate.md")
 	fileAttachment.SetDisposition("attachment")
@@ -183,4 +183,8 @@ func (award *Award) EmailAward(filename string) error {
 		log.Println(response.StatusCode)
 	}
 	return nil
+}
+
+func (award *Award) Tex2Pdf() (string, error) {
+	return "README.md", nil
 }
