@@ -2,11 +2,13 @@ package handlers
 
 import (
 	"database/sql"
+	"encoding/base64"
 	"encoding/json"
 	"github.com/Kudos-Employee-Recognition-Portal/KudosApi/models"
 	"github.com/gorilla/mux"
 	"github.com/sendgrid/sendgrid-go"
 	"github.com/sendgrid/sendgrid-go/helpers/mail"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -59,7 +61,6 @@ func QueryAwards(db *sql.DB) http.Handler {
 
 func CreateAward(db *sql.DB) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		log.Println("Hit: CreateAward")
 		var award models.Award
 		err := json.NewDecoder(r.Body).Decode(&award)
 		if err != nil {
@@ -77,16 +78,43 @@ func CreateAward(db *sql.DB) http.Handler {
 		// tex2pdf
 
 		// Email via Twilio SendGrid API integration.
-		from := mail.NewEmail("Example User", "awardsteam@kudosapi.appspotmail.com")
-		subject := "Sending with SendGrid is Fun"
-		to := mail.NewEmail("Example User", "mathewmcdade@gmail.com")
-		plainTextContent := "and easy to do anywhere, even with Go"
-		htmlContent := "<strong>and easy to do anywhere, even with Go</strong>"
-		message := mail.NewSingleEmail(from, subject, to, plainTextContent, htmlContent)
-		client := sendgrid.NewSendClient(os.Getenv("KUDOS_API_SENDGRID"))
-		response, err := client.Send(message)
+		// Try V3 API for attachments.
+		email := mail.NewV3Mail()
+		// Set sender.
+		email.SetFrom(mail.NewEmail("Kudos!", "awardsteam@kudosapi.appspotmail.com"))
+		// Set content.
+		email.AddContent(mail.NewContent("text/html", "<h2>Congratulations!!</h2>"))
+
+		// Personalization, add award recipient logic here.
+		personalization := mail.NewPersonalization()
+		personalization.AddTos(mail.NewEmail("McDude", "mcdadem@oregonstate.edu"))
+		personalization.Subject = "Someone gave you an award. Great Job!!"
+		email.AddPersonalizations(personalization)
+
+		// Process file to attachment.
+		// TODO: change to PDF when conversion working.
+		data, err := ioutil.ReadFile("main.go")
 		if err != nil {
-			log.Println(err)
+			http.Error(w, "Couldn't read file.", http.StatusInternalServerError)
+			return
+		}
+		fileAttachment := mail.NewAttachment()
+		fileAttachment.SetContent(base64.StdEncoding.EncodeToString([]byte(data)))
+		fileAttachment.SetType("text/plain")
+		fileAttachment.SetFilename("certificate.pdf")
+		fileAttachment.SetDisposition("attachment")
+		fileAttachment.SetContentID("Test Attachment")
+
+		// Add attachment to email.
+		email.AddAttachment(fileAttachment)
+
+		request := sendgrid.GetRequest(os.Getenv("KUDOS_API_SENDGRID"), "/v3/mail/send", "https://api.sendgrid.com")
+		request.Method = "POST"
+		request.Body = mail.GetRequestBody(email)
+		response, err := sendgrid.API(request)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
 		} else {
 			log.Println(response.StatusCode)
 			log.Println(response.Body)
