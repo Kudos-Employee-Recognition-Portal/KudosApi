@@ -2,7 +2,13 @@ package models
 
 import (
 	"database/sql"
+	"encoding/base64"
 	"github.com/go-sql-driver/mysql"
+	"github.com/sendgrid/sendgrid-go"
+	"github.com/sendgrid/sendgrid-go/helpers/mail"
+	"io/ioutil"
+	"log"
+	"os"
 )
 
 // Award struct reflects the award db entity after being joined to relevant tables, receiving values rather than keys.
@@ -131,4 +137,50 @@ func (award *Award) DeleteAward(db *sql.DB) error {
 		"DELETE FROM award WHERE id = ?",
 		award.ID)
 	return err
+}
+
+func (award *Award) EmailAward(filename string) error {
+	// Try V3 API for attachments.
+	email := mail.NewV3Mail()
+	// Set sender.
+	email.SetFrom(mail.NewEmail("Kudos!", "awardsteam@kudosapi.appspotmail.com"))
+	// Set content.
+	email.AddContent(mail.NewContent("text/html", "<h2>Congratulations!!</h2>"))
+
+	// Personalization, add award recipient logic here.
+	personalization := mail.NewPersonalization()
+	personalization.AddTos(mail.NewEmail("McDude", "mcdadem@oregonstate.edu"))
+	personalization.Subject = "Someone gave you an award. Great Job!!"
+	email.AddPersonalizations(personalization)
+
+	// Process file to attachment.
+	// TODO: change to read PDF from tempfile when conversion working.
+	// https://golang.org/pkg/io/ioutil/#TempDir
+	data, err := ioutil.ReadFile(filename)
+	if err != nil {
+		return err
+	}
+	fileAttachment := mail.NewAttachment()
+	fileAttachment.SetContent(base64.StdEncoding.EncodeToString([]byte(data)))
+	fileAttachment.SetType("text/plain")
+	fileAttachment.SetFilename("certificate.md")
+	fileAttachment.SetDisposition("attachment")
+	fileAttachment.SetContentID("Test Attachment")
+
+	// Add attachment to email.
+	email.AddAttachment(fileAttachment)
+
+	// Build request object.
+	request := sendgrid.GetRequest(os.Getenv("KUDOS_API_SENDGRID"), "/v3/mail/send", "https://api.sendgrid.com")
+	request.Method = "POST"
+	request.Body = mail.GetRequestBody(email)
+	// Ship it!
+	response, err := sendgrid.API(request)
+	if err != nil {
+		return err
+	} else {
+		// TODO: remove success dev log.
+		log.Println(response.StatusCode)
+	}
+	return nil
 }
