@@ -93,7 +93,7 @@ func CreateAward(db *sql.DB) http.Handler {
 
 		// Process file to attachment.
 		// TODO: change to PDF when conversion working.
-		data, err := ioutil.ReadFile("main.go")
+		data, err := ioutil.ReadFile("README.md")
 		if err != nil {
 			http.Error(w, "Couldn't read file.", http.StatusInternalServerError)
 			return
@@ -101,24 +101,25 @@ func CreateAward(db *sql.DB) http.Handler {
 		fileAttachment := mail.NewAttachment()
 		fileAttachment.SetContent(base64.StdEncoding.EncodeToString([]byte(data)))
 		fileAttachment.SetType("text/plain")
-		fileAttachment.SetFilename("certificate.pdf")
+		fileAttachment.SetFilename("certificate.md")
 		fileAttachment.SetDisposition("attachment")
 		fileAttachment.SetContentID("Test Attachment")
 
 		// Add attachment to email.
 		email.AddAttachment(fileAttachment)
 
+		// Build request object.
 		request := sendgrid.GetRequest(os.Getenv("KUDOS_API_SENDGRID"), "/v3/mail/send", "https://api.sendgrid.com")
 		request.Method = "POST"
 		request.Body = mail.GetRequestBody(email)
+		// Ship it!
 		response, err := sendgrid.API(request)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		} else {
+			// TODO: remove success dev log.
 			log.Println(response.StatusCode)
-			log.Println(response.Body)
-			log.Println(response.Headers)
 		}
 
 		w.Header().Set("Content-Type", "application/json")
