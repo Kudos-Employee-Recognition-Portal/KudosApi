@@ -41,6 +41,7 @@ type dateRange struct {
 }
 
 type Awards []Award
+type Regions []region
 
 func GetAllAwards(db *sql.DB) (Awards, error) {
 	rows, err := db.Query(
@@ -180,9 +181,6 @@ func (award *Award) EmailAward(filename string) error {
 	response, err := sendgrid.API(request)
 	if err != nil {
 		return err
-	} else {
-		// TODO: remove success dev log.
-		log.Println(response.StatusCode)
 	}
 	return nil
 }
@@ -234,4 +232,25 @@ func (award *Award) Tex2Pdf(dname string, signatureFilepath string) (string, err
 
 	// Clean up and return:
 	return pdfFilepath, nil
+}
+
+func GetAllRegions(db *sql.DB) (Regions, error) {
+	rows, err := db.Query(
+		"SELECT id, name FROM region")
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var regions Regions
+	for rows.Next() {
+		var region region
+		err := rows.Scan(
+			&region.ID, &region.Name)
+		if err != nil {
+			return nil, err
+		}
+		regions = append(regions, region)
+	}
+	return regions, nil
 }

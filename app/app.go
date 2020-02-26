@@ -10,6 +10,8 @@ import (
 	"net/http"
 )
 
+// TODO: add more descriptive http error response strings.
+
 // Wrapping the router and database objects in a struct has several benefits. For this application, primarily the
 //	ability to define functions that take the struct as a receiver allowing scoped access to its components.
 type App struct {
@@ -45,8 +47,7 @@ func (app *App) InitRouter() {
 	// Create new gorilla mux router and assign to the App struct's Router property.
 	app.Router = mux.NewRouter()
 
-	// TODO: Restrict requests to server domain after deployment. This will secure the api against abusive or malformed requests.
-
+	// TODO: Secure the API.
 	// Handle routes by either directly passing a handler function or pointing to a subrouter directing function.
 	app.Router.Handle("/", ApiInfo(app.DB))
 	routes.UsersRouter(app.Router.PathPrefix("/users").Subrouter(), app.DB)

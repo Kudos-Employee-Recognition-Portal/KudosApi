@@ -6,9 +6,10 @@ import (
 	"github.com/gorilla/mux"
 )
 
-// TODO: add a route to get award regions.
+// TODO: restrict path params with regex.
 func AwardsRouter(r *mux.Router, db *sql.DB) {
 	r.StrictSlash(true)
+	r.Handle("/regions", handlers.GetRegions(db)).Methods(("GET"))
 	r.Handle("/", handlers.CreateAward(db)).Methods("POST")
 	r.Handle("/{id}", handlers.DeleteAward(db)).Methods("DELETE")
 	// Creating named route for parameter search not the most idiomatic, but

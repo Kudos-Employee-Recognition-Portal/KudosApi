@@ -149,7 +149,8 @@ func GetManagerAwards(db *sql.DB) http.Handler {
 	})
 }
 
-// TODO: consider adding email verification service.
+// TODO: consider adding email verification service; not really needed as emails are currently generated using
+// 	a third party no-reply address.
 func CreateAdmin(db *sql.DB) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		var admin models.User
@@ -287,7 +288,7 @@ func SetManagerSignature(db *sql.DB) http.Handler {
 		// Connect to the Google Cloud Storage bucket where signatures are stored.
 		ctx := context.Background()
 		client, err := storage.NewClient(ctx, option.WithCredentialsFile(os.Getenv("GOOGLE_APPLICATION_CREDENTIALS")))
-		// TODO: switch to inferred credentials when deployed, maybe.
+		// TODO: switch to inferred credentials when deployed, maybe; credentials may not be inferred in flex environment.
 		//client, err := storage.NewClient(ctx)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)

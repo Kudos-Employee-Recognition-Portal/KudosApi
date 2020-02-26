@@ -55,7 +55,7 @@ func QueryAwards(db *sql.DB) http.Handler {
 	})
 }
 
-// TODO: !! remove award from db is award generation fails.
+// TODO: !! remove award from db if award generation fails.
 func CreateAward(db *sql.DB) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		var award models.Award
@@ -154,5 +154,19 @@ func DeleteAward(db *sql.DB) http.Handler {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		_ = json.NewEncoder(w).Encode(map[string]string{"result": "success"})
+	})
+}
+
+func GetRegions(db *sql.DB) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		regions, err := models.GetAllRegions(db)
+		if err != nil {
+			http.Error(w, err.Error(), 500)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		// Encoding error is explicitly ignored as data structure is verified in model method.
+		_ = json.NewEncoder(w).Encode(regions)
 	})
 }
