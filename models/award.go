@@ -158,8 +158,6 @@ func (award *Award) EmailAward(filename string) error {
 	email.AddPersonalizations(personalization)
 
 	// Process file to attachment.
-	// TODO: change to read PDF from tempfile when conversion working.
-	// https://golang.org/pkg/io/ioutil/#TempDir
 	data, err := ioutil.ReadFile(filename)
 	if err != nil {
 		return err
@@ -167,9 +165,9 @@ func (award *Award) EmailAward(filename string) error {
 	fileAttachment := mail.NewAttachment()
 	fileAttachment.SetContent(base64.StdEncoding.EncodeToString(data))
 	fileAttachment.SetType("application/pdf")
-	fileAttachment.SetFilename("certificate.pdf")
+	fileAttachment.SetFilename("kudos.pdf")
 	fileAttachment.SetDisposition("attachment")
-	fileAttachment.SetContentID("Your Award")
+	fileAttachment.SetContentID("Your Kudos Award")
 
 	// Add attachment to email.
 	email.AddAttachment(fileAttachment)
@@ -223,8 +221,13 @@ func (award *Award) Tex2Pdf(dname string, signatureFilepath string) (string, err
 	// Insert relevant award object variables into tex template.
 
 	// Convert tex to pdf and save to the temp directory.
+
+	cmd := exec.Command("pdflatex", "test.tex")
+	if err := cmd.Run(); err != nil {
+		return "", err
+	}
 	pdfFilepath := filepath.Join(dname, "award.pdf")
-	cmd := exec.Command("pdflatex", "test.tex", pdfFilepath)
+	cmd = exec.Command("mv", "test.pdf", pdfFilepath)
 	if err := cmd.Run(); err != nil {
 		return "", err
 	}

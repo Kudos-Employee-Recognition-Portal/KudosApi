@@ -55,6 +55,7 @@ func QueryAwards(db *sql.DB) http.Handler {
 	})
 }
 
+// TODO: !! remove award from db is award generation fails.
 func CreateAward(db *sql.DB) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		var award models.Award
