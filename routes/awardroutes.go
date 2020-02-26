@@ -6,7 +6,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
-// TODO: add path variable matching.
+// TODO: add a route to get award regions.
 func AwardsRouter(r *mux.Router, db *sql.DB) {
 	r.StrictSlash(true)
 	r.Handle("/", handlers.CreateAward(db)).Methods("POST")
