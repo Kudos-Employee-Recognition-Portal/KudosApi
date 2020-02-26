@@ -148,7 +148,7 @@ func (user *User) CreateManager(db *sql.DB) error {
 	stmt1, err := tx.Prepare(
 		"INSERT INTO `user` (type, email, password, createdBy) VALUE ('manager', ?, ?, ?)")
 	stmt2, err := tx.Prepare(
-		"INSERT INTO `manager` (user_id, firstName, lastName) VALUE (?, ?, ?, ?)")
+		"INSERT INTO `manager` (user_id, firstName, lastName) VALUE (?, ?, ?)")
 	res, err := stmt1.Exec(user.Email, user.Password, user.CreatedBy)
 	if err != nil {
 		tx.Rollback()
