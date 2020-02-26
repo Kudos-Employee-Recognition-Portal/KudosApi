@@ -219,7 +219,7 @@ func (award *Award) Tex2Pdf(dname string, signatureFilepath string) (string, err
 	// Insert relevant award object variables into tex template.
 
 	// Convert tex to pdf and save to the temp directory.
-
+	// TODO: try to reduce os calls: pdflatex -halt-on-error -output-directory dname test.tex
 	cmd := exec.Command("pdflatex", "test.tex")
 	if err := cmd.Run(); err != nil {
 		return "", err
