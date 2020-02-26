@@ -1,4 +1,6 @@
 # TESTING: DO NOT DEPLOY
+# Image is very large, likely in large part due to the texlive libraries, but
+#   it may be worth transitioning to a multistage build, eventually.
 
 FROM golang:latest
 

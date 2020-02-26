@@ -6,9 +6,13 @@ import (
 	"github.com/go-sql-driver/mysql"
 	"github.com/sendgrid/sendgrid-go"
 	"github.com/sendgrid/sendgrid-go/helpers/mail"
+	"io"
 	"io/ioutil"
 	"log"
+	"net/http"
 	"os"
+	"os/exec"
+	"path/filepath"
 )
 
 // Award struct reflects the award db entity after being joined to relevant tables, receiving values rather than keys.
@@ -185,12 +189,46 @@ func (award *Award) EmailAward(filename string) error {
 	return nil
 }
 
-func (award *Award) Tex2Pdf() (string, error) {
+func (award *Award) GetSignatureImage(dname string) (string, error) {
+	// Get the image from cloud storage.
+	url := award.CreatedBy.SigURL.String
+	if url == "" {
+		return "2846902_2.jpg", nil
+	}
+	// Could also get image via cloud storage, but this takes advantage of
+	//	having the image url available.
+	response, err := http.Get(url)
+	if err != nil {
+		return "", err
+	}
+	defer response.Body.Close()
+
+	// Save it to the tempdir.
+	signatureFilepath := filepath.Join(dname, "signature.jpeg")
+	signatureFile, err := os.Create(signatureFilepath)
+	if err != nil {
+		return "", err
+	}
+	defer signatureFile.Close()
+	_, err = io.Copy(signatureFile, response.Body)
+	if err != nil {
+		return "", err
+	}
+
+	// Return the temporary signature file path.
+	return signatureFilepath, nil
+}
+
+func (award *Award) Tex2Pdf(dname string, signatureFilepath string) (string, error) {
 	// Insert relevant award object variables into tex template.
 
-	// Convert tex to pdf.
+	// Convert tex to pdf and save to the temp directory.
+	pdfFilepath := filepath.Join(dname, "award.pdf")
+	cmd := exec.Command("pdflatex", "test.tex", pdfFilepath)
+	if err := cmd.Run(); err != nil {
+		return "", err
+	}
 
-	// Save pdf to /tmp.
-
-	return "congrats.pdf", nil
+	// Clean up and return:
+	return pdfFilepath, nil
 }

@@ -149,6 +149,7 @@ func GetManagerAwards(db *sql.DB) http.Handler {
 	})
 }
 
+// TODO: consider adding email verification service.
 func CreateAdmin(db *sql.DB) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		var admin models.User
