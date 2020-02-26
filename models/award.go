@@ -8,7 +8,6 @@ import (
 	"github.com/sendgrid/sendgrid-go/helpers/mail"
 	"io"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"os"
 	"os/exec"
@@ -178,7 +177,7 @@ func (award *Award) EmailAward(filename string) error {
 	request.Method = "POST"
 	request.Body = mail.GetRequestBody(email)
 	// Ship it!
-	response, err := sendgrid.API(request)
+	_, err = sendgrid.API(request)
 	if err != nil {
 		return err
 	}
