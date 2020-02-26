@@ -147,14 +147,14 @@ func (award *Award) EmailAward(filename string) error {
 	// Try V3 API for attachments.
 	email := mail.NewV3Mail()
 	// Set sender.
-	email.SetFrom(mail.NewEmail("Kudos!", "awardsteam@kudosapi.appspotmail.com"))
+	email.SetFrom(mail.NewEmail("Kudos!", "awardsteam-no-reply@kudosapi.appspotmail.com"))
 	// Set content.
-	email.AddContent(mail.NewContent("text/html", "<h2>Congratulations!!</h2>"))
+	email.AddContent(mail.NewContent("text/html", "<h1>"+award.Type+"<h1><h2>Congratulations "+award.RecipientName+"!!</h2>"))
 
 	// Personalization, add award recipient logic here.
 	personalization := mail.NewPersonalization()
-	personalization.AddTos(mail.NewEmail("McDude", "mcdadem@oregonstate.edu"))
-	personalization.Subject = "Someone gave you an award. Great Job!!"
+	personalization.AddTos(mail.NewEmail(award.RecipientName, award.RecipientEmail))
+	personalization.Subject = award.CreatedBy.FirstName + " gave you an award. Great Job!!"
 	email.AddPersonalizations(personalization)
 
 	// Process file to attachment.
