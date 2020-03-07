@@ -16,7 +16,7 @@ RUN apt-get update && apt-get -y install texlive-latex-extra
 
 COPY . .
 
-# Test pdflatex binary: RUN pdflatex test.tex test.pdf
+# Test pdflatex binary: RUN pdflatex award.tex test.pdf
 
 RUN go build -o main .
 

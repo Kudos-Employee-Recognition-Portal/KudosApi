@@ -1,0 +1,40 @@
+% Template developed from sources:
+%   https://www.overleaf.com/latex/templates/certificatetemplate/mhrvbkrpkytm
+%   https://tex.stackexchange.com/questions/46406/package-for-certificates
+\documentclass[20pt,landscape]{scrartcl}
+\usepackage{pdflscape}
+% General document formatting.
+\usepackage[margin=0.5in,right=0.75in]{geometry}
+\usepackage[utf8]{inputenc}
+% Graphics packages.
+\usepackage{graphicx}
+\usepackage{wallpaper}
+% Underlining package.
+%\usepackage[normalem]{ulem}
+% AMS packages.
+\usepackage{amsmath,amssymb,amsfonts,amsthm}
+% Fonts.
+\usepackage{tgchorus}
+\usepackage{lmodern}
+% 256 character encoding.
+\usepackage[T1]{fontenc}
+
+\begin{document}
+\CenterWallPaper{1}{border.jpg}
+    \pagenumbering{gobble}
+    \title{\vspace{-0.5in}{\fontfamily{lmdh}\selectfont{## .Title ##}}}
+    \subtitle{{\fontfamily{lmdh}\selectfont{## .Region ##}}}
+    \author{{\fontfamily{lmdh}\selectfont{\small On this date,}}}
+    \date{## .Date ##}
+    \maketitle
+    \vspace{-0.35in}
+    \centerline{\Large {\fontfamily{qzc}\selectfont{This award is given to}}} 
+    \centerline{\normalsize \emph{\fontfamily{lmdh}\selectfont{## .Recipient ##}}}
+    \centerline{\small by}
+    \centerline{\normalsize {\fontfamily{lmdh}\selectfont{## .Manager ##}}}
+    \centerline{\large {\fontfamily{qzc}\selectfont{in recognition of excellence.}}}%
+    \vspace{-0.60in}
+    \begin{flushright}
+	    \includegraphics[height=1.5in]{## .Signature ##}
+    \end{flushright}
+\end{document}

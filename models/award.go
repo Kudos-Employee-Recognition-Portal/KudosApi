@@ -8,10 +8,12 @@ import (
 	"github.com/sendgrid/sendgrid-go/helpers/mail"
 	"io"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"text/template"
 )
 
 // Award struct reflects the award db entity after being joined to relevant tables, receiving values rather than keys.
@@ -216,16 +218,51 @@ func (award *Award) GetSignatureImage(dname string) (string, error) {
 
 func (award *Award) Tex2Pdf(dname string, signatureFilepath string) (string, error) {
 	// Insert relevant award object variables into tex template.
+	type awardTemplate struct {
+		Title     string
+		Region    string
+		Date      string
+		Recipient string
+		Manager   string
+		Signature string
+	}
+	awardFields := awardTemplate{
+		Title:     award.Type,
+		Region:    award.Region.Name,
+		Date:      award.CreatedOn.Time.Format("January 02, 2006"),
+		Recipient: award.RecipientName,
+		Manager:   award.CreatedBy.FirstName + " " + award.CreatedBy.LastName,
+		Signature: signatureFilepath,
+	}
+	templateOutputFile, err := os.OpenFile("award.tex", os.O_CREATE|os.O_WRONLY, 0666)
+	if err != nil {
+		log.Println("failed to open output file")
+		return "", err
+	}
+	defer templateOutputFile.Close()
+	templateInputFile, err := template.New("award.gotex").Delims("##", "##").ParseFiles("award.gotex")
+	if err != nil {
+		log.Println("failed to parse")
+		return "", err
+	}
+
+	err = templateInputFile.Execute(templateOutputFile, awardFields)
+	if err != nil {
+		log.Println("failed to execute template")
+		return "", err
+	}
 
 	// Convert tex to pdf and save to the temp directory.
-	// TODO: try to reduce os calls: pdflatex -halt-on-error -output-directory dname test.tex
-	cmd := exec.Command("pdflatex", "test.tex")
+	// TODO: try to reduce os calls: pdflatex -halt-on-error -output-directory dname award.tex
+	cmd := exec.Command("pdflatex", "award.tex")
 	if err := cmd.Run(); err != nil {
+		log.Println("pdflatex conversion failure")
 		return "", err
 	}
 	pdfFilepath := filepath.Join(dname, "award.pdf")
-	cmd = exec.Command("mv", "test.pdf", pdfFilepath)
+	cmd = exec.Command("mv", "award.pdf", pdfFilepath)
 	if err := cmd.Run(); err != nil {
+		log.Println("os exec command failure.")
 		return "", err
 	}
 
