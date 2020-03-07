@@ -24,16 +24,16 @@
     \pagenumbering{gobble}
     \title{\vspace{-0.5in}{\fontfamily{lmdh}\selectfont{## .Title ##}}}
     \subtitle{{\fontfamily{lmdh}\selectfont{## .Region ##}}}
-    \author{{\fontfamily{lmdh}\selectfont{\small On this date,}}}
+    \author{\vspace{-0.1in}{\fontfamily{lmdh}\selectfont{\small On this date,}}}
     \date{## .Date ##}
     \maketitle
-    \vspace{-0.35in}
+    \vspace{-0.45in}
     \centerline{\Large {\fontfamily{qzc}\selectfont{This award is given to}}} 
     \centerline{\normalsize \emph{\fontfamily{lmdh}\selectfont{## .Recipient ##}}}
     \centerline{\small by}
     \centerline{\normalsize {\fontfamily{lmdh}\selectfont{## .Manager ##}}}
     \centerline{\large {\fontfamily{qzc}\selectfont{in recognition of excellence.}}}%
-    \vspace{-0.60in}
+    \vspace{-0.40in}
     \begin{flushright}
 	    \includegraphics[height=1.5in]{## .Signature ##}
     \end{flushright}
