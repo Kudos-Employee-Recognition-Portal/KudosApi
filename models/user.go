@@ -137,8 +137,11 @@ func (user *User) CreateAdmin(db *sql.DB) error {
 		tx.Rollback()
 		return err
 	}
-	tx.Commit()
-
+	err = tx.Commit()
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
 	return nil
 }
 
@@ -164,7 +167,11 @@ func (user *User) CreateManager(db *sql.DB) error {
 		tx.Rollback()
 		return err
 	}
-	tx.Commit()
+	err = tx.Commit()
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
 
 	return nil
 }

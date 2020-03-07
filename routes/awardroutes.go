@@ -6,7 +6,6 @@ import (
 	"github.com/gorilla/mux"
 )
 
-// TODO: restrict path params with regex.
 func AwardsRouter(r *mux.Router, db *sql.DB) {
 	r.StrictSlash(true)
 	r.Handle("/regions", handlers.GetRegions(db)).Methods("GET")

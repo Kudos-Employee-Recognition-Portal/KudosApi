@@ -189,6 +189,7 @@ func (award *Award) EmailAward(filename string) error {
 func (award *Award) GetSignatureImage(dname string) (string, error) {
 	// Get the image from cloud storage.
 	url := award.CreatedBy.SigURL.String
+	// If the manager hasn't set a signature, pretend to be Bruce Lee.
 	if url == "" {
 		return "2846902_2.jpg", nil
 	}

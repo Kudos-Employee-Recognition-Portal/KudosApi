@@ -17,7 +17,7 @@ func GetAwards(db *sql.DB) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		awards, err := models.GetAllAwards(db)
 		if err != nil {
-			http.Error(w, err.Error(), 500)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 		w.Header().Set("Content-Type", "application/json")
@@ -45,7 +45,7 @@ func QueryAwards(db *sql.DB) http.Handler {
 		award.Region.Name = r.URL.Query().Get("regionname")
 		awards, err := award.QueryAwards(db)
 		if err != nil {
-			http.Error(w, err.Error(), 500)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 		w.Header().Set("Content-Type", "application/json")
@@ -55,7 +55,6 @@ func QueryAwards(db *sql.DB) http.Handler {
 	})
 }
 
-// TODO: !! remove award from db if award generation fails.
 func CreateAward(db *sql.DB) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		var award models.Award
@@ -80,16 +79,23 @@ func CreateAward(db *sql.DB) http.Handler {
 		// Create a temp directory to handle assets.
 		dname, err := ioutil.TempDir("", "texpdf")
 		if err != nil {
+			if err0 := award.DeleteAward(db); err0 != nil {
+				http.Error(w, err0.Error(), http.StatusInternalServerError)
+			}
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 		// Defer removal of the temp dir, texpdf, until function completion.
+		// TODO: write a deferred error checker.
 		defer os.RemoveAll(dname)
 
 		// Get the awarding manager's signature image from cloud storage and save to the tempdir,
 		//	dname, to use as an asset in pdf creation.
 		signatureFilepath, err := award.GetSignatureImage(dname)
 		if err != nil {
+			if err0 := award.DeleteAward(db); err0 != nil {
+				http.Error(w, err0.Error(), http.StatusInternalServerError)
+			}
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
@@ -98,6 +104,9 @@ func CreateAward(db *sql.DB) http.Handler {
 		//	and return the string name of the generated pdf's filepath.
 		pdfFilepath, err := award.Tex2Pdf(dname, signatureFilepath)
 		if err != nil {
+			if err0 := award.DeleteAward(db); err0 != nil {
+				http.Error(w, err0.Error(), http.StatusInternalServerError)
+			}
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
@@ -105,6 +114,9 @@ func CreateAward(db *sql.DB) http.Handler {
 		// Email via Twilio SendGrid API integration.
 		// Email the award recipient
 		if err = award.EmailAward(pdfFilepath); err != nil {
+			if err0 := award.DeleteAward(db); err0 != nil {
+				http.Error(w, err0.Error(), http.StatusInternalServerError)
+			}
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}

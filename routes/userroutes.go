@@ -6,7 +6,6 @@ import (
 	"github.com/gorilla/mux"
 )
 
-// TODO: add path variable matching.
 func UsersRouter(r *mux.Router, db *sql.DB) {
 	r.StrictSlash(true)
 	r.Handle("/managers", handlers.GetManagers(db)).Methods("GET")
