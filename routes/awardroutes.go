@@ -6,6 +6,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
+// All subroutes prefixed by [HOST].com/awards
 func AwardsRouter(r *mux.Router, db *sql.DB) {
 	r.StrictSlash(true)
 	r.Handle("/regions", handlers.GetRegions(db)).Methods("GET")
