@@ -1,19 +1,25 @@
 package models
 
 import (
+	"bytes"
+	"cloud.google.com/go/storage"
+	"context"
 	"database/sql"
 	"encoding/base64"
 	"github.com/go-sql-driver/mysql"
 	"github.com/sendgrid/sendgrid-go"
 	"github.com/sendgrid/sendgrid-go/helpers/mail"
-	"io"
+	"google.golang.org/api/option"
+	"image/png"
+	_ "io"
 	"io/ioutil"
 	"log"
-	"net/http"
+	_ "net/http"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"text/template"
+	"time"
 )
 
 // Award struct reflects the award db entity after being joined to relevant tables, receiving values rather than keys.
@@ -193,24 +199,42 @@ func (award *Award) GetSignatureImage(dname string) (string, error) {
 	if url == "" {
 		return "2846902_2.jpg", nil
 	}
-	// Could also get image via cloud storage, but this takes advantage of
-	//	having the image url available.
-	response, err := http.Get(url)
+
+	// Open up the signature bucket.
+	ctx := context.Background()
+	ctx, cancel := context.WithTimeout(ctx, time.Second*60)
+	defer cancel()
+	client, err := storage.NewClient(ctx, option.WithCredentialsFile(os.Getenv("GOOGLE_APPLICATION_CREDENTIALS")))
+	if err != nil {
+		log.Println("Cloud storage error.")
+		return "", err
+	}
+	// Read out the image blob.
+	imageObject, err := client.Bucket(os.Getenv("G_BUCKET_NAME")).Object("user3signature").NewReader(ctx)
 	if err != nil {
 		return "", err
 	}
-	defer response.Body.Close()
+	// Read the blob to a byte string.
+	imageData, err := ioutil.ReadAll(imageObject)
+	if err != nil {
+		return "", err
+	}
+	// Decode the byte string as a png image type.
+	image, err := png.Decode(bytes.NewReader(imageData))
 
-	// Save it to the tempdir.
-	signatureFilepath := filepath.Join(dname, "signature.jpeg")
+	// open file to tempdir to save signature.
+	signatureFilepath := filepath.Join(dname, "signature.png")
 	signatureFile, err := os.Create(signatureFilepath)
 	if err != nil {
 		return "", err
 	}
 	defer signatureFile.Close()
-	_, err = io.Copy(signatureFile, response.Body)
+
+	// Encode the image as png and write to temp file.
+	err = png.Encode(signatureFile, image)
 	if err != nil {
-		return "", err
+		log.Println("Failed to encode PNG.")
+		return "", nil
 	}
 
 	// Return the temporary signature file path.

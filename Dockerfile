@@ -12,7 +12,7 @@ COPY go.mod go.sum ./
 
 RUN go mod download
 
-RUN apt-get update && apt-get -y install texlive-latex-extra
+RUN apt-get update && apt-get -y install texlive-latex-extra && apt-get -y install imagemagick
 
 COPY . .
 
