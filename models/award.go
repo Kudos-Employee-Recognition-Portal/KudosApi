@@ -18,6 +18,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strconv"
 	"text/template"
 	"time"
 )
@@ -210,7 +211,7 @@ func (award *Award) GetSignatureImage(dname string) (string, error) {
 		return "", err
 	}
 	// Read out the image blob.
-	imageObject, err := client.Bucket(os.Getenv("G_BUCKET_NAME")).Object("user3signature").NewReader(ctx)
+	imageObject, err := client.Bucket(os.Getenv("G_BUCKET_NAME")).Object("user" + strconv.Itoa(award.CreatedBy.ID) + "signature").NewReader(ctx)
 	if err != nil {
 		return "", err
 	}
