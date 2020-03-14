@@ -6,7 +6,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
-// All subroutes prefixed by [HOST].com/users
+// All subroutes prefixed by [HOST]/users
 func UsersRouter(r *mux.Router, db *sql.DB) {
 	r.StrictSlash(true)
 	r.Handle("/managers", handlers.GetManagers(db)).Methods("GET")
