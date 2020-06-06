@@ -1,9 +1,5 @@
 # KudosApi
-## Data Objects
-#### award
-#### user
-#### manager
-#### admin
+The KudosApi provides backend data and process functionality for Kudos Employee Recogntion Portal capstone project clients.
 ## Endpoints
 ###### Note: localhost:8080 replaced by kudosapi.wl.r.appspot.com in deployment.
 ## Get Things
