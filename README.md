@@ -1,5 +1,8 @@
 # KudosApi
 The KudosApi provides backend data and process functionality for Kudos Employee Recogntion Portal capstone project clients.
+Data functionality includes safe access and mutation of relational data stored in a cloud sql database.
+Process functionality includes email distribution via the Twilio SendGrid API as well as customized LaTeX to PDF document generation.
+The API is designed to be deployed to the Google Cloud App Engine via a custom Docker container.
 ## Endpoints
 ###### Note: localhost:8080 replaced by kudosapi.wl.r.appspot.com in deployment.
 ## Get Things
